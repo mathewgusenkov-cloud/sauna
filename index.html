@@ -35,8 +35,10 @@ header .meta { flex: none; white-space: nowrap; color: rgba(255,255,255,.8); dis
 #flag { padding: 0 calc(var(--s)*1.5); height: calc(var(--s)*3.5); display: inline-flex; align-items: center; border-radius: 99px; font-size: calc(var(--s)*1.5); font-weight: 500; background: rgba(255,255,255,.06); }
 #flag.bad { color: #ffa79e; background: rgba(255,90,80,.16); box-shadow: inset 0 0 0 1px rgba(255,90,80,.42); font-weight: 500; }
 #flag.note { color: rgba(255,255,255,.8); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
-#musicBtn { align-items: center; gap: calc(var(--s)*1); padding: calc(var(--s)*1.5) calc(var(--s)*2); border-radius: 99px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); color: var(--ink); }
-#musicBtn svg { width: calc(var(--s)*2.25); height: calc(var(--s)*2.25); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+#musicBtn, #setBtn { align-items: center; gap: calc(var(--s)*1); height: calc(var(--s)*6); padding: 0 calc(var(--s)*2.5) 0 calc(var(--s)*2); border-radius: 99px; background: rgba(255,255,255,.06); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 1px rgba(255,255,255,.12); color: var(--ink); font-size: calc(var(--s)*2.125); }
+#setBtn { display: inline-flex; justify-content: center; width: calc(var(--s)*6); padding: 0; }
+#setBtn:active { background: rgba(255,255,255,.1); }
+#musicBtn svg, #setBtn svg { width: calc(var(--s)*2.75); height: calc(var(--s)*2.75); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 #musicBtn:active { background: rgba(255,255,255,.1); }
 #clock { padding-left: calc(var(--s)*1); }
 #hero { position: absolute; z-index: 2; touch-action: none; }
@@ -240,7 +242,7 @@ body #slide.glass #hint, body #slide.glass:not(.on):not(.busy) #hint, body #slid
 /* === v21 START === -/+ hug the target; time pill glass is drawn in the shader (real refraction), DOM keeps only the rim === */
 body #hero .stepper #tDown { border-radius: 50% !important; left: 31.5% !important; }
 body #hero .stepper #tUp { border-radius: 50% !important; left: 68.5% !important; }
-body #addT, body #addT.hidden { display: grid !important; align-items: stretch; gap: 0; right: auto; left: calc(var(--s)*31) !important; width: calc(var(--s)*49) !important; top: calc(var(--s)*136.75) !important; height: calc(var(--s)*9) !important; grid-template-columns: calc(var(--s)*10) 1fr calc(var(--s)*10) !important; border-radius: calc(var(--s)*4.5) !important; background: none !important; backdrop-filter: none !important; box-shadow: none !important; }
+body #addT, body #addT.hidden { display: grid !important; align-items: stretch; gap: 0; right: auto; left: calc(var(--s)*33) !important; width: calc(var(--s)*47) !important; top: calc(var(--s)*136.75) !important; height: calc(var(--s)*9) !important; grid-template-columns: calc(var(--s)*10) 1fr calc(var(--s)*10) !important; border-radius: calc(var(--s)*4.5) !important; background: none !important; backdrop-filter: none !important; box-shadow: none !important; }
 /* === v21 END === */
 /* === v23 START === goose off screen === */
 /* v24: sinks with the hills and fades */
@@ -287,7 +289,8 @@ body.off header .name { font-weight: 500 !important; color: #fff !important; }
 .rows > * + * { box-shadow: inset 0 1px 0 rgba(255,255,255,.07); }
 .rows > button:active { background: rgba(255,255,255,.05); }
 .rows em { font-style: normal; color: var(--ink-2); }
-.rows input[type=range] { flex: 1; max-width: 60%; height: calc(var(--s)*4); accent-color: #fff; touch-action: none; }
+#setBright { flex-wrap: wrap; padding-top: calc(var(--s)*1.5); padding-bottom: calc(var(--s)*1.5); }
+.rows input[type=range] { flex: 1 1 100%; width: 100%; max-width: none; margin: 0; height: calc(var(--s)*6); padding: 0; background: none; box-shadow: none; border-radius: 0; accent-color: #fff; touch-action: none; }
 #diag { max-height: 32vh; overflow: auto; font: 400 calc(var(--s)*1.5)/1.5 ui-monospace, Menlo, monospace; color: var(--ink-2); background: rgba(0,0,0,.35); border-radius: calc(var(--s)*2); padding: calc(var(--s)*2); white-space: pre-wrap; user-select: text; -webkit-user-select: text; }
 
 /* ==================== SLEEP - black, small dim text that drifts (no static pixels), graphics stopped ==================== */
@@ -301,9 +304,9 @@ body.off header .name { font-weight: 500 !important; color: #fff !important; }
 <body>
 <div id="app">
   <canvas id="gl" class="fadein"></canvas>
-  <header><div class="name" id="name">Sauna</div><div class="meta"><span id="flag" class="hidden"></span><button id="musicBtn" class="hidden" aria-label="Open music"><svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Music</button><span id="clock"></span></div></header>
+  <header><div class="name" id="name">Sauna</div><div class="meta"><span id="flag" class="hidden"></span><button id="musicBtn" class="hidden" aria-label="Open Spotify"><svg viewBox="0 0 24 24"><path d="M6 15v-4M10 18V7M14 16V9M18 14v-2"/></svg>Spotify</button><button id="setBtn" aria-label="Settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><span id="clock"></span></div></header>
 
-  <div id="hero" class="fadein"><svg viewBox="0 0 400 400"><defs><radialGradient id="tg" gradientUnits="userSpaceOnUse" cx="200" cy="200" r="200"><stop offset=".86" style="stop-color:var(--glow);stop-opacity:.85"/><stop offset=".905" stop-color="#fff" stop-opacity=".28"/><stop offset=".95" stop-color="#fff" stop-opacity=".95"/><stop offset="1" style="stop-color:var(--glow);stop-opacity:.6"/></radialGradient></defs><g id="ticks"></g><path id="track"/><path id="prog"/><g id="knob"><circle class="hit" r="40"/><circle r="9"/></g></svg><div id="tPill"></div>
+  <div id="hero" class="fadein"><svg viewBox="0 0 400 400"><defs><radialGradient id="tg" gradientUnits="userSpaceOnUse" cx="200" cy="200" r="200"><stop offset=".86" style="stop-color:var(--glow);stop-opacity:.85"/><stop offset=".905" stop-color="#fff" stop-opacity=".28"/><stop offset=".95" stop-color="#fff" stop-opacity=".95"/><stop offset="1" style="stop-color:var(--glow);stop-opacity:.6"/></radialGradient></defs><g id="ticks"></g><path id="track"/><path id="prog"/><g id="knob"><circle class="hit" r="48"/><circle r="11"/></g></svg><div id="tPill"></div>
     <div class="read"><div class="now"><span id="now">--</span><sup id="unit">°F</sup></div><div id="state">&nbsp;</div><div class="value" id="tWrap"><span id="tVal">--</span><small id="tUnit">°F</small></div></div><div class="stepper"><button id="tDown" class="glass" aria-label="Lower temperature"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><button id="tUp" class="glass" aria-label="Raise temperature"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
 
   <div id="notice" role="status"><b id="noticeT"></b><span id="noticeB"></span><button id="noticeX" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
@@ -321,7 +324,7 @@ body.off header .name { font-weight: 500 !important; color: #fff !important; }
     <div id="err"></div><button class="btn" type="submit" id="loginGo">Continue</button><button class="btn text" type="button" id="demoBtn">Preview with demo data</button></form></div>
 
   <div id="settings" class="sheet hidden"><div class="box"><h1>Panel settings</h1>
-    <div class="rows"><button id="setUnit"><span>Temperature unit</span><em id="setUnitV"></em></button><label id="setBright" class="hidden"><span>Brightness</span><input id="setBrightR" type="range" min="25" max="255" step="5"></label><button id="setReload"><span>Reload panel</span><em>Fixes most glitches</em></button><button id="setDiag"><span>Diagnostics</span><em id="setVer"></em></button><button id="setOut"><span>Sign out</span><em id="setAcct"></em></button></div>
+    <div class="rows"><button id="setUnit"><span>Temperature unit</span><em id="setUnitV"></em></button><label id="setBright" class="hidden"><span>Brightness</span><input id="setBrightR" type="range" min="10" max="255" step="1"></label><button id="setReload"><span>Reload panel</span><em>Fixes most glitches</em></button><button id="setDiag"><span>Diagnostics</span><em id="setVer"></em></button><button id="setOut"><span>Sign out</span><em id="setAcct"></em></button></div>
     <div id="diag" class="hidden"></div><button class="btn ghost" id="setClose">Done</button></div></div>
 </div>
 
@@ -611,7 +614,7 @@ function renderView() { const u = useF ? "°F" : "°C", ready = isReady(), rem =
   const fresh = S.lastOk && (now() - S.lastOk < 100000 || document.hidden), link = S.online && fresh && S.deviceOk;
   let st; if (!S.lastOk) st = S.online ? "Connecting…" : "Can't reach the sauna · use the wall controller"; else if (!S.online || !fresh) st = "Can't reach the sauna · use the wall controller"; else if (!S.deviceOk) st = "The sauna is offline · use the wall controller";
     else if (holding) st = "Keep holding…"; else if (S.phase === "starting") st = now() - S.startedAt > 20000 ? "Still starting…" : "Starting…"; else if (S.phase === "stopping") st = "Stopping…";
-    else if (S.active) st = ready ? "Ready" : "Heating · ready " + (e ? clockAt(e) : "--");   /* v18: ready time lives in the orb subtitle */
+    else if (S.active) st = ready ? "Ready" : e ? "Heating · ready " + clockAt(e) : "Heating";   /* ready time shows once ~2 min of heating data exists */
     else if (S.failNote && now() - (S.failAt || 0) < 15 * 60000) st = S.failNote + " · hold to try again";
     else st = "Off";
   $("state").textContent = st; document.body.classList.toggle("off", !(S.active || S.phase === "starting")); document.body.classList.toggle("stale", !link && !!S.lastOk); document.body.classList.toggle("nolink", !link && !S.active);
@@ -658,17 +661,17 @@ tap($("tUp"), () => nudge(1)); tap($("tDown"), () => nudge(-1));
   tap(sl, () => { if (!S.signedIn || fired) return; if (S.phase === "starting" || (S.active && S.phase === "idle")) stop(); }); })();
 
 (function () { const hero = $("hero"); let drag = false; const at = ev => { const r = hero.getBoundingClientRect(), x = ev.clientX - r.left - r.width / 2, y = ev.clientY - r.top - r.height / 2; let d = Math.atan2(y, x) * 180 / Math.PI; if (d < 0) d += 360; let rel = d - A0; if (rel < 0) rel += 360; return { dist: Math.hypot(x, y) / (r.width / 2), rel }; };
-  const move = ev => { const p = at(ev); if (p.rel > SW + 30) return; setTarget(LO + clamp(p.rel / SW, 0, 1) * (CFG.maxC - LO)); };
-  const nearKnob = ev => { const k = $("knob").getBoundingClientRect(); return Math.hypot(ev.clientX - (k.left + k.width / 2), ev.clientY - (k.top + k.height / 2)) < Math.max(44, W * .07); };   // a tap on the ring does nothing; only a drag that begins on the knob
+  const move = ev => { const p = at(ev); if (p.rel > SW + 30) return; dialFrac = clamp(p.rel / SW, 0, 1); setTarget(LO + clamp(p.rel / SW, 0, 1) * (CFG.maxC - LO)); };
+  const nearKnob = ev => { const k = $("knob").getBoundingClientRect(); return Math.hypot(ev.clientX - (k.left + k.width / 2), ev.clientY - (k.top + k.height / 2)) < Math.max(56, W * .08); };   // a tap on the ring does nothing; only a drag that begins on the knob
   hero.addEventListener("pointerdown", ev => { if (!S.signedIn || document.body.classList.contains("ambient") || document.body.classList.contains("off")) return; if (nearKnob(ev)) { drag = true; $("knob").classList.add("drag"); try { hero.setPointerCapture(ev.pointerId); } catch (e) {} } });
-  cancelDrag = () => { drag = false; $("knob").classList.remove("drag"); }; hero.addEventListener("pointermove", ev => drag && move(ev)); ["pointerup", "pointercancel", "lostpointercapture"].forEach(e => hero.addEventListener(e, () => { drag = false; $("knob").classList.remove("drag"); })); })();
+  cancelDrag = () => { drag = false; dialFrac = null; $("knob").classList.remove("drag"); }; hero.addEventListener("pointermove", ev => drag && move(ev)); ["pointerup", "pointercancel", "lostpointercapture"].forEach(e => hero.addEventListener(e, () => { drag = false; dialFrac = null; $("knob").classList.remove("drag"); })); })();
 document.addEventListener("contextmenu", ev => ev.preventDefault()); document.addEventListener("gesturestart", ev => ev.preventDefault());
 
 /* idle behaviour: controls fade (ambient) → near-black clock (asleep, only when the sauna is off). Any touch wakes; the waking touch does nothing else. */
 let ambT = 0, slpT = 0, savedBright = null;
 function setAsleep(on) { const was = document.body.classList.contains("asleep"); if (on === was) return; document.body.classList.toggle("asleep", on);
   if (on) { const b = fullyCall("getScreenBrightness"); savedBright = typeof b === "number" && b > 16 ? Math.round(b) : 150; store.set("bright", savedBright); fullyCall("setScreenBrightness", 12); } else { if (fullyApi()) fullyCall("setScreenBrightness", userBright() || savedBright || 150); store.set("bright", null); } }
-function userBright() { const u = store.get("ubright", null); return typeof u === "number" && u >= 25 && u <= 255 ? u : null; }
+function userBright() { const u = store.get("ubright", null); return typeof u === "number" && u >= 10 && u <= 255 ? u : null; }
 function restoreBrightness() { const ub = userBright(); if (fullyApi() && ub != null) { fullyCall("setScreenBrightness", ub); store.set("bright", null); return; } const sb = store.get("bright", null); if (fullyApi() && sb != null) { fullyCall("setScreenBrightness", sb); store.set("bright", null); log("restored screen brightness after restart"); } }
 function wake() { lastTouch = now(); document.body.classList.remove("ambient"); setAsleep(false); clearTimeout(ambT); clearTimeout(slpT); if (!$("login").classList.contains("hidden") || !$("settings").classList.contains("hidden")) return;
   if (CFG.ambientMs) ambT = setTimeout(() => document.body.classList.add("ambient"), CFG.ambientMs); slpT = setTimeout(function trySleep() { if ((S.active && S.deviceOk && S.online) || S.phase !== "idle") slpT = setTimeout(trySleep, 60000); else setAsleep(true); }, CFG.sleepMs); }
@@ -676,6 +679,7 @@ addEventListener("pointerdown", ev => { const b = document.body.classList;
   if (b.contains("asleep") || b.contains("ambient")) { /* the waking touch only wakes. Deliberate: wiping a dark screen must never be able to start the heater */ ev.stopPropagation(); ev.preventDefault(); const kill = e => { e.stopPropagation(); e.preventDefault(); }; addEventListener("click", kill, { capture: true, once: true }); const done = () => { removeEventListener("pointerup", done, true); removeEventListener("pointercancel", done, true); setTimeout(() => removeEventListener("click", kill, true), 120); }; addEventListener("pointerup", done, true); addEventListener("pointercancel", done, true); } wake(); if (!S.online || now() - S.lastOk > 15000) schedulePoll(200); }, true);
 
 /* music: only offered inside Fully Kiosk, which can open other apps and bring this panel back afterwards */
+tap($("setBtn"), openSettings);
 tap($("musicBtn"), () => { log("open music"); fullyCall("startApplication", CFG.musicPackage); });
 
 /* settings: press and hold the sauna name for 2 seconds */
@@ -684,7 +688,7 @@ let setT = 0, outArmed = 0;
 function openSettings() { document.body.classList.add("modal"); clearTimeout(setT); setT = setTimeout(closeSettings, 60000); outArmed = 0; $("setOut").firstElementChild.textContent = "Sign out";
   $("setUnitV").textContent = useF ? "°F" : "°C"; $("setVer").textContent = "v" + VERSION; $("setAcct").textContent = (api && api.account && api.account()) || ""; $("setBright").classList.toggle("hidden", !fullyApi()); if (fullyApi()) { const gb = fullyCall("getScreenBrightness"); $("setBrightR").value = userBright() || (typeof gb === "number" && gb > 16 ? Math.round(gb) : 150); } $("diag").classList.add("hidden"); $("settings").classList.remove("hidden"); clearTimeout(ambT); clearTimeout(slpT); }
 function closeSettings() { clearTimeout(setT); $("settings").classList.add("hidden"); if ($("login").classList.contains("hidden")) document.body.classList.remove("modal"); wake(); }
-$("setBrightR").addEventListener("input", ev => { const v = clamp(Math.round(+ev.target.value) || 150, 25, 255); store.set("ubright", v); fullyCall("setScreenBrightness", v); clearTimeout(setT); setT = setTimeout(closeSettings, 60000); });
+$("setBrightR").addEventListener("input", ev => { const v = clamp(Math.round(+ev.target.value) || 150, 10, 255); store.set("ubright", v); fullyCall("setScreenBrightness", v); clearTimeout(setT); setT = setTimeout(closeSettings, 60000); });
 tap($("setClose"), closeSettings); tap($("setUnit"), () => { useF = !useF; store.set("unit", useF ? "F" : "C"); lastTgtShown = null; $("setUnitV").textContent = useF ? "°F" : "°C"; render(); });
 tap($("setReload"), () => safeReload("manual", true)); tap($("setOut"), () => { if (now() - outArmed > 5000) { outArmed = now(); $("setOut").firstElementChild.textContent = "Tap again to sign out · guests won't be able to use the panel"; return; } log("signed out by user"); const stillOn = S.active; api.logout(); S.signedIn = false; clearTimeout(setT); $("settings").classList.add("hidden"); needLogin(stillOn ? "The sauna is still on. It runs until its timer ends or it is stopped at the wall." : "", true); });
 tap($("setDiag"), () => { const d = $("diag"); d.classList.toggle("hidden"); const f = fullyApi();
@@ -873,7 +877,7 @@ cv.addEventListener("webglcontextlost", ev => { ev.preventDefault(); glOk = fals
 cv.addEventListener("webglcontextrestored", () => { glOk = initGL(); if (glOk) app.style.background = ""; log("graphics context restored: " + glOk); });
 
 let phase = 0, adjAt = -1e9, bumpA = 0, bumpTi = -1, bumpLast = -1;
-let pillA = 0, onLin = 0, heroKey = "", onS = 0, heatS = 0, last = performance.now(), kA = A0, kV = 0, frameNo = 0, T0 = performance.now();
+let pillA = 0, onLin = 0, heroKey = "", onS = 0, heatS = 0, last = performance.now(), kA = A0, kV = 0, dialFrac = null, frameNo = 0, T0 = performance.now();
 function frame(t) { requestAnimationFrame(frame); try { frameView(t); } catch (e) { viewErr(e); } }
 function frameView(t) { const b = document.body.classList; if (document.hidden || b.contains("asleep")) { last = t; return; }
   frameNo++; const calm = b.contains("ambient") || (b.contains("off") && now() - lastTouch > 60000); if (calm && frameNo % 2) return;                     // 30 fps is plenty when nothing is happening; halves heat and power
@@ -881,7 +885,7 @@ function frameView(t) { const b = document.body.classList; if (document.hidden |
   const k = 1 - Math.exp(-dt * 2.2); cyN += (.5 - cyN) * k; rN += (.30 - rN) * k;
   const showOn = S.active || S.phase === "starting"; onLin = clamp(onLin + (showOn ? 1 : -1) * dt / 1.6, 0, 1); onS = onLin < .5 ? 4 * onLin * onLin * onLin : 1 - Math.pow(-2 * onLin + 2, 3) / 2;   /* ease-in-out, 1.6 s */ const rdy = isReady(), prog = S.temp == null ? 0 : (S.active && S.target > 25) ? (rdy ? 1 : clamp((S.temp - ROOM) / (S.target - ROOM), 0, 1) * .9) : frac(S.temp); heatS += (prog - heatS) * (1 - Math.exp(-dt * 2)); /* while running, colour means progress toward the target, so Ready always looks ready */
   pulse *= Math.exp(-dt * 1.7); phase += dt * (.31 + .5 * onS);   // ~40% livelier than 1.3.1 if (phase > 3600) phase -= 3600;
-  { const g2 = A0 + SW * frac(S.target), m = 4; for (let i = 0; i < m; i++) { const h = dt / m; kV += ((g2 - kA) * 900 - kV * 60) * h; kA += kV * h; } const [kx, ky] = pol(kA, RR); $("knob").setAttribute("transform", `translate(${kx} ${ky})`);
+  { const g2 = A0 + SW * frac(S.target), m = 4; for (let i = 0; i < m; i++) { const h = dt / m; kV += ((g2 - kA) * 900 - kV * 60) * h; kA += kV * h; } if ($("knob").classList.contains("drag") && dialFrac != null) { kA = A0 + SW * dialFrac; kV = 0; } const [kx, ky] = pol(kA, RR); $("knob").setAttribute("transform", `translate(${kx} ${ky})`);
     const touching = $("knob").classList.contains("drag") || $("tUp").matches(":active") || $("tDown").matches(":active"); if (touching) adjAt = t; bumpA += ((touching || t < adjAt ? 1 : 0) - bumpA) * (1 - Math.exp(-dt * 4.5));   // eases into the long mode on touch, back to standard after
     const ti = (kA - A0) / SW * (NT - 1); if (Math.abs(ti - bumpTi) > .004 || Math.abs(bumpA - bumpLast) > .003) { bumpTi = ti; bumpLast = bumpA; const sel = Math.round(ti);
       for (let i = 0; i < TK.length; i++) { const l = TK[i], e = 13 * bumpA * Math.exp(-Math.pow((i - ti) / 3.6, 2)), c = Math.cos(l._a), s2 = Math.sin(l._a), r0 = l._r0 - e * .15, r1 = l._r1 + e; l.style.strokeWidth = (1.3 + .7 * e / 13).toFixed(2);
