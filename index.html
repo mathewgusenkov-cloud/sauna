@@ -86,8 +86,7 @@ body.modal #hero, body.modal #hint, body.modal #notice, body.modal header .meta 
 #hero .value::before { display: block; }
 #hero .value small { top: auto; bottom: .55em; }
 #stats { position: absolute; left: 0; right: 0; z-index: 3; display: flex; justify-content: center; gap: calc(var(--s)*10); text-align: center; }
-#stats > div { gap: calc(var(--s)*.8); }
-body.modal #stats, body.modal #addT, body.modal #slide { opacity: 0 !important; pointer-events: none; transition: opacity .3s; }
+#stats > div { gap: calc(var(--s)*.8); }body.modal #stats, body.modal #slide { opacity: 0 !important; pointer-events: none; transition: opacity .3s; }
 /* ===== GLASS KIT v3 (Mathew's refs: dark smoked glass cards, hairline edges, warm light rising from the bottom edge) ===== */
 .glass { position: relative; border: 0; border-radius: var(--glass-radius); background: var(--glass-tint); color: #f3ede9; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
 .glass::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; padding: 1px; z-index: 4; background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.05) 45%, rgba(var(--glass-glow), .30)); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
@@ -101,10 +100,6 @@ body.off #ticks, body.off #knob, body.off #track, body.off #prog, body.off #tPil
 #slide:not(.on):not(.busy):active { transform: none; }
 #hero .stepper button { pointer-events: auto; }
 #hero .stepper button:active { transform: translate(-50%,-50%) scale(.9); transition: transform 90ms var(--out); }
-#addT { position: absolute; z-index: 3; justify-content: center; gap: calc(var(--s)*5); }
-#addT button { font-variant-numeric: tabular-nums; }
-#addT #st2 { text-align: center; }
-#addT button:active { transform: scale(.94); transition: transform 90ms var(--out); }
 /* slide to start -> collapses into a plain glass Off pill once running */
 #slide { position: absolute; z-index: 3; --k: 0; }
 #slide #hint { pointer-events: none; transition: padding .5s var(--out); }
@@ -126,10 +121,9 @@ body.off #ticks, body.off #knob, body.off #track, body.off #prog, body.off #tPil
 #slide.on, #slide.busy { left: calc(var(--s)*16); right: calc(var(--s)*16); height: calc(var(--s)*10); }
 #slide.on #hint, #slide.busy #hint { padding-left: 0; opacity: 1; font-size: calc(var(--s)*2.5); font-weight: 500; letter-spacing: -.01em; }
 /* ===== ember dim screen ===== */
-@keyframes breathe { 0%, 100%{ opacity: .45; transform: scale(.94) rotate(0deg); } 50%{ opacity: 1; transform: scale(1.04) rotate(8deg); } }
-/* ===== v15: one glass dock for the bottom controls, hold-to-start power button, target box between - and + ===== */
+@keyframes breathe { 0%, 100%{ opacity: .45; transform: scale(.94) rotate(0deg); } 50%{ opacity: 1; transform: scale(1.04) rotate(8deg); } }/* ===== v15: one glass dock for the bottom controls, hold-to-start power button, target box between - and + ===== */
 /* wells inside the dock (ref 2): darker cells with a hairline, no second blur */
-#stats, #addT { transition: opacity .6s var(--out), transform .8s var(--out); }
+#stats { transition: opacity .6s var(--out), transform .8s var(--out); }
 /* power button: hold to start, tap to turn off */
 #slide.glass, #slide.glass.on, #slide.glass.busy { left: calc(50% - var(--s)*6.5) !important; right: auto !important; width: calc(var(--s)*13); height: calc(var(--s)*13) !important; bottom: calc(var(--s)*13); border-radius: 50%; overflow: visible; -webkit-backdrop-filter: none; backdrop-filter: none; transition: background .7s var(--out), box-shadow .7s var(--out), transform .5s var(--spring); }
 #slide.glass.on, #slide.glass.busy { background: radial-gradient(circle at 50% 30%, rgba(80,44,28,.6), rgba(30,14,8,.75) 70%); box-shadow: inset 0 1px 0 rgba(255,255,255,.14), inset 0 -18px 26px -10px rgba(255,128,56,.70), inset 0 0 0 1px rgba(255,160,90,.20), 0 14px 30px rgba(0,0,0,.5), 0 0 46px -8px rgba(255,120,50,.55); }
@@ -157,9 +151,6 @@ body.off #hero .stepper { transform: translateY(calc(var(--s)*-1.5)); }
 #hero .stepper button::after, #hero .stepper button::before { display: none !important; }
 #hero .stepper #tWrap::after { display: none; }
 #hero .stepper #tWrap::before { content: "Target"; text-transform: uppercase; line-height: 1; }
-/* ---------- Time capsule (#addT) ---------- */
-body #addT.hidden { opacity: 0; transform: translateY(calc(var(--s)*1.5)); pointer-events: none; }
-body #addT button.glass::after { display: none; }
 /* one pressed + one disabled language for all four segments */
 /* ---------- Ready at: a quiet caption under the orb, tied to the setpoint ---------- */
 body #stats > #st1:not(.hidden) { display: flex; align-items: baseline; gap: calc(var(--s)*.9); }
@@ -167,23 +158,20 @@ body #stats > #st1:not(.hidden) { display: flex; align-items: baseline; gap: cal
 /* ---------- toast: opaque smoked capsule that lands exactly over the time row ---------- */
 /* === REWORK B END === */
 /* === v17 START === centred orb, liquid-glass controls, side-by-side capsules === */
-:root { --s: 8px; --t-xs: calc(var(--s)*1.75); --t-sm: calc(var(--s)*2.125); --t-md: calc(var(--s)*2.5); --t-lg: calc(var(--s)*4.25); --t-xl: calc(var(--s)*17); --ink: #fff; --ink-2: rgba(255,255,255,.62); --ink-3: rgba(255,255,255,.38); --glow: #3d83ff; --spring: linear(0, .009, .035 2.1%, .141 4.4%, .723 12.9%, .938 16.7%, 1.017 19.4%, 1.077 22.2%, 1.121 25.1%, 1.149 28.2%, 1.159 31.5%, 1.14 38.9%, 1.079 49.1%, 1.04 56.5%, 1.011 65.5%, .996 76.6%, 1); --out: cubic-bezier(.16, 1, .3, 1); --glass-tint: linear-gradient(180deg, rgba(34,27,24,.50), rgba(20,15,13,.62)); --glass-tint-on: linear-gradient(180deg, rgba(48,30,22,.55), rgba(40,20,12,.66)); --glass-glow: 255, 128, 56; --glass-radius: 22px; --rb-w: calc(var(--s)*70); --rb-h: calc(var(--s)*11); --rb-seg: calc(var(--s)*17); --rb-r: calc(var(--s)*3.75); --rb-line: rgba(255,255,255,.085); --rb-cap: rgba(255,255,255,.46); --rb-fill: linear-gradient(180deg, rgba(36,28,24,.62), rgba(14,11,10,.74)); --rb-edge: inset 0 1px 0 rgba(255,255,255,.075), inset 0 0 0 1px rgba(255,255,255,.065), inset 0 -18px 30px -24px rgba(255,128,56,.38), 0 18px 40px -18px rgba(0,0,0,.7); --g-w: calc(var(--s)*42.5); --g-h: calc(var(--s)*10); --g-seg: calc(var(--s)*11); --g-r: calc(var(--s)*5); --g-top: calc(var(--s)*118); --lg-fill: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.018) 46%, rgba(255,255,255,.035)); --lg-edge: inset 0 1px 0 rgba(255,255,255,.20), inset 0 0 0 .5px rgba(255,255,255,.16), inset 0 -1px 0 rgba(255,255,255,.05), inset 0 -14px 22px -18px rgba(255,150,90,.22), 0 10px 30px -14px rgba(0,0,0,.5); --lg-blur: blur(14px) saturate(170%) brightness(1.06); --lg-line: rgba(255,255,255,.10); }
-/* shared liquid-glass capsule */
-#hero .stepper::before, body #addT { background: linear-gradient(var(--lg-line), var(--lg-line)) var(--g-seg) 50% / .5px 44% no-repeat,
+:root { --s: 8px; --t-xs: calc(var(--s)*1.75); --t-sm: calc(var(--s)*2.125); --t-md: calc(var(--s)*2.5); --t-lg: calc(var(--s)*4.25); --t-xl: calc(var(--s)*17); --ink: #fff; --ink-2: rgba(255,255,255,.62); --ink-3: rgba(255,255,255,.38); --glow: #3d83ff; --spring: linear(0, .009, .035 2.1%, .141 4.4%, .723 12.9%, .938 16.7%, 1.017 19.4%, 1.077 22.2%, 1.121 25.1%, 1.149 28.2%, 1.159 31.5%, 1.14 38.9%, 1.079 49.1%, 1.04 56.5%, 1.011 65.5%, .996 76.6%, 1); --out: cubic-bezier(.16, 1, .3, 1); --glass-tint: linear-gradient(180deg, rgba(34,27,24,.50), rgba(20,15,13,.62)); --glass-tint-on: linear-gradient(180deg, rgba(48,30,22,.55), rgba(40,20,12,.66)); --glass-glow: 255, 128, 56; --glass-radius: 22px; --rb-w: calc(var(--s)*70); --rb-h: calc(var(--s)*11); --rb-seg: calc(var(--s)*17); --rb-r: calc(var(--s)*3.75); --rb-line: rgba(255,255,255,.085); --rb-cap: rgba(255,255,255,.46); --rb-fill: linear-gradient(180deg, rgba(36,28,24,.62), rgba(14,11,10,.74)); --rb-edge: inset 0 1px 0 rgba(255,255,255,.075), inset 0 0 0 1px rgba(255,255,255,.065), inset 0 -18px 30px -24px rgba(255,128,56,.38), 0 18px 40px -18px rgba(0,0,0,.7); --g-w: calc(var(--s)*42.5); --g-h: calc(var(--s)*10); --g-seg: calc(var(--s)*11); --g-r: calc(var(--s)*5); --g-top: calc(var(--s)*118); --lg-fill: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.018) 46%, rgba(255,255,255,.035)); --lg-edge: inset 0 1px 0 rgba(255,255,255,.20), inset 0 0 0 .5px rgba(255,255,255,.16), inset 0 -1px 0 rgba(255,255,255,.05), inset 0 -14px 22px -18px rgba(255,150,90,.22), 0 10px 30px -14px rgba(0,0,0,.5); --lg-blur: blur(14px) saturate(170%) brightness(1.06); --lg-line: rgba(255,255,255,.10); }/* shared liquid-glass capsule */
+#hero .stepper::before { background: linear-gradient(var(--lg-line), var(--lg-line)) var(--g-seg) 50% / .5px 44% no-repeat,
     linear-gradient(var(--lg-line), var(--lg-line)) calc(100% - var(--g-seg)) 50% / .5px 44% no-repeat, var(--lg-fill) !important; border-radius: var(--g-r) !important; box-shadow: var(--lg-edge) !important; backdrop-filter: var(--lg-blur) !important; }
 /* Target capsule: left half of the row under the dial */
 #hero .stepper::before { content: ""; position: absolute; pointer-events: none; left: calc(50% - var(--s)*43.5); width: var(--g-w); top: calc(50% + var(--s)*38); height: var(--g-h); }
 #hero .stepper #tDown { border-radius: var(--g-r) 0 0 var(--g-r); }
-#hero .stepper #tWrap, #hero .stepper #tWrap.glass { position: absolute; padding: 0; display: flex; align-content: center; border-radius: 0; line-height: 1; color: #fff; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
-#hero .stepper #tWrap::before, body #addT #st2 small { font-weight: 400 !important; }
+#hero .stepper #tWrap, #hero .stepper #tWrap.glass { position: absolute; padding: 0; display: flex; align-content: center; border-radius: 0; line-height: 1; color: #fff; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }#hero .stepper #tWrap::before { font-weight: 400 !important; }
 #hero .stepper #tWrap small { letter-spacing: 0; line-height: 1; font-weight: 300; }
 #tVal, #tPill { font-variant-numeric: tabular-nums; }
 /* number motion: crisp short roll on taps, nothing while scrubbing the dial */
 #tWrap .value span, #tWrap.bump span, .value.bump span { will-change: transform, opacity; }
 .value.bump span { animation: tRoll 240ms cubic-bezier(.16,1,.3,1) !important; }
-@keyframes tRoll { 0%{ transform: translateY(var(--dy, 0)); opacity: .15; } 100%{ transform: none; opacity: 1; } }
-/* Time capsule: right half of the same row */
-#hero .stepper button:active:not([disabled]), body #addT button:active:not([disabled]) { background: rgba(255,255,255,.07) !important; }
+@keyframes tRoll { 0%{ transform: translateY(var(--dy, 0)); opacity: .15; } 100%{ transform: none; opacity: 1; } }/* Time capsule: right half of the same row */
+#hero .stepper button:active:not([disabled]) { background: rgba(255,255,255,.07) !important; }
 /* Ready at: one quiet line in the dial's bottom gap */
 /* power key: same liquid glass, same home in both modes */
 /* toast spans the capsule row */
@@ -198,9 +186,7 @@ body #hero .stepper::before { display: none !important; }
 body #hero .stepper button:active:not([disabled]) { transform: translate(-50%,-50%) scale(.92) !important; background: rgba(255,255,255,.10) !important; }
 /* Ready at: fixed slot just under the target readout */
 body #stats small { font-weight: 400 !important; text-transform: uppercase; font-size: calc(var(--s)*1.75) !important; letter-spacing: .14em !important; color: rgba(255,255,255,.78) !important; }
-body #stats b { letter-spacing: -.005em; line-height: 1; font-weight: 400 !important; color: #ffcfa8 !important; font-variant-numeric: tabular-nums; font-size: calc(var(--s)*1.75) !important; }
-/* time capsule: centred, the only capsule */
-body #addT button[disabled], body #hero .stepper button[disabled] { opacity: .4 !important; }
+body #stats b { letter-spacing: -.005em; line-height: 1; font-weight: 400 !important; color: #ffcfa8 !important; font-variant-numeric: tabular-nums; font-size: calc(var(--s)*1.75) !important; }/* time capsule: centred, body #hero .stepper button[disabled] { opacity: .4 !important; }
 /* power: 48px under the capsule, caption readable */
 /* === v17b END === */
 /* === v18 START === target row lowered away from the orb; power + time on one bottom row === */
@@ -224,16 +210,8 @@ body.off #stats { top: calc(var(--s)*122) !important; }
 /* dial chip: glass instead of white */
 body #tPill { background: rgba(255,255,255,.08) !important; color: #fff !important; font-size: calc(var(--s)*2) !important; font-weight: 400 !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 0 0 .5px rgba(255,255,255,.18) !important; backdrop-filter: blur(12px) saturate(160%); }
 /* header: light weight like the rest */
-body header .name { font-weight: 300 !important; color: rgba(255,255,255,.8) !important; }
-/* === v18b END === */
-/* === v19 START === target row lower; power + time row = orb width (x160-640), smaller, lower; clearer glass === */
-body #addT button:first-child { border-radius: calc(var(--s)*4.5) 0 0 calc(var(--s)*4.5) !important; }
-body #addT button:last-child { border-radius: 0 calc(var(--s)*4.5) calc(var(--s)*4.5) 0 !important; }
-body #addT button, body #addT button.glass { height: auto; padding: 0; border-radius: 0; background: transparent !important; box-shadow: none !important; backdrop-filter: none; transform: none !important; transition: background .18s var(--out), opacity .3s var(--out); font-weight: 300 !important; letter-spacing: -.01em !important; color: rgba(255,255,255,.85) !important; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; gap: calc(var(--s)*.5) !important; font-size: calc(var(--s)*2.25) !important; }
-body #addT button small { font-weight: 400; text-transform: uppercase; letter-spacing: .14em !important; color: rgba(255,255,255,.72) !important; font-size: calc(var(--s)*1.5) !important; }
-body #addT #st2 { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--s)*.5) !important; }
-body #addT #st2 small { text-transform: uppercase; line-height: 1; letter-spacing: .14em !important; color: rgba(255,255,255,.78) !important; font-size: calc(var(--s)*1.75) !important; }
-body #addT #st2 b { line-height: 1; color: #fff; font-variant-numeric: tabular-nums; font-weight: 300 !important; letter-spacing: -.035em !important; font-size: calc(var(--s)*3.75) !important; }
+body header .name { font-weight: 300 !important; color: rgba(255,255,255,.8) !important; }/* === v18b END === */
+/* === v19 START === target row lower; power + time row = orb width (x160-640), smaller { border-radius: calc(var(--s)*4.5) 0 0 calc(var(--s)*4.5) !important; }
 /* === v19 END === */
 /* === v20 START === target row closer to the orb; crisp power key === */
 body #hero .stepper button.glass, body #hero .stepper button, body #hero .stepper #tWrap, body #hero .stepper #tWrap.glass { top: 102.5% !important; }
@@ -245,7 +223,6 @@ body #slide.glass #hint, body #slide.glass:not(.on):not(.busy) #hint, body #slid
 /* === v21 START === -/+ hug the target; time pill glass is drawn in the shader (real refraction), DOM keeps only the rim === */
 body #hero .stepper #tDown { border-radius: 50% !important; left: 31.5% !important; }
 body #hero .stepper #tUp { border-radius: 50% !important; left: 68.5% !important; }
-body #addT, body #addT.hidden { display: grid !important; align-items: stretch; gap: 0; right: auto; left: calc(var(--s)*33) !important; width: calc(var(--s)*47) !important; top: calc(var(--s)*136.75) !important; height: calc(var(--s)*9) !important; grid-template-columns: calc(var(--s)*10) 1fr calc(var(--s)*10) !important; border-radius: calc(var(--s)*4.5) !important; background: none !important; backdrop-filter: none !important; box-shadow: none !important; }
 /* === v21 END === */
 /* === v23 START === goose off screen === */
 /* v24: sinks with the hills and fades */
@@ -302,13 +279,8 @@ body.off header .name { font-weight: 500 !important; color: #fff !important; }
 #sleep .c { font-variant-numeric: tabular-nums; font-size: calc(var(--s)*7); font-weight: 200; letter-spacing: -.03em; line-height: 1; color: rgba(255,255,255,.62); }
 #sleep .t { font-size: calc(var(--s)*1.75); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.4); }
 #sleep .w { margin-top: calc(var(--s)*3); font-size: calc(var(--s)*1.75); letter-spacing: .02em; color: rgba(255,255,255,.34); }
-body #addT, body #addT.hidden { display: block !important; left: calc(var(--s)*55) !important; width: calc(var(--s)*9) !important; height: calc(var(--s)*9) !important; top: calc(var(--s)*136.75) !important; border-radius: 50% !important; overflow: visible; background: rgba(255,255,255,.045) !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.26), inset 0 1px 0 rgba(255,255,255,.18) !important; -webkit-backdrop-filter: blur(8px) saturate(160%) !important; backdrop-filter: blur(8px) saturate(160%) !important; }
-body #addT button, body #addT button.glass { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50% !important; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--s)*.25); color: #fff; line-height: 1; font-size: calc(var(--s)*2.75) !important; }
-body #addT button:active { background: rgba(255,255,255,.07) !important; }
-body #addT button small { font-size: calc(var(--s)*1.25) !important; }
-body #addT #st2 { position: absolute; display: block !important; top: calc(100% + var(--s)*1.375); left: -80%; right: -80%; text-align: center; }
-body #addT #st2 b { font-size: calc(var(--s)*1.75) !important; font-weight: 500 !important; letter-spacing: .14em !important; text-transform: uppercase; color: rgba(255,255,255,.8) !important; white-space: nowrap; }
-body #slide.glass.on { left: calc(var(--s)*36) !important; }
+#st2 { margin-top: calc(var(--s)*3.375); font-size: calc(var(--s)*1.75); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.62); font-variant-numeric: tabular-nums; }
+body #slide.glass.on { left: calc(var(--s)*45.5) !important; }
 </style>
 </head>
 <body>
@@ -317,12 +289,12 @@ body #slide.glass.on { left: calc(var(--s)*36) !important; }
   <header><div class="name" id="name">Sauna</div><div class="meta"><span id="flag" class="hidden"></span><button id="musicBtn" class="hidden" aria-label="Open Spotify"><span class="sp"></span>Spotify</button><button id="setBtn" aria-label="Settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><span id="clock"></span></div></header>
 
   <div id="hero" class="fadein"><svg viewBox="0 0 400 400"><defs><radialGradient id="tg" gradientUnits="userSpaceOnUse" cx="200" cy="200" r="200"><stop offset=".86" style="stop-color:var(--glow);stop-opacity:.85"/><stop offset=".905" stop-color="#fff" stop-opacity=".28"/><stop offset=".95" stop-color="#fff" stop-opacity=".95"/><stop offset="1" style="stop-color:var(--glow);stop-opacity:.6"/></radialGradient></defs><g id="ticks"></g><path id="track"/><path id="prog"/><g id="knob"><circle class="hit" r="48"/><circle r="11"/></g></svg><div id="tPill"></div>
-    <div class="read"><div class="now"><span id="now">--</span><sup id="unit">°F</sup></div><div id="state">&nbsp;</div><div class="value" id="tWrap"><span id="tVal">--</span><small id="tUnit">°F</small></div></div><div class="stepper"><button id="tDown" class="glass" aria-label="Lower temperature"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><button id="tUp" class="glass" aria-label="Raise temperature"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
+    <div class="read"><div class="now"><span id="now">--</span><sup id="unit">°F</sup></div><div id="state">&nbsp;</div><div id="st2" class="hidden"><span id="s2V"></span> left</div><div class="value" id="tWrap"><span id="tVal">--</span><small id="tUnit">°F</small></div></div><div class="stepper"><button id="tDown" class="glass" aria-label="Lower temperature"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><button id="tUp" class="glass" aria-label="Raise temperature"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
 
   <div id="notice" role="status"><b id="noticeT"></b><span id="noticeB"></span><button id="noticeX" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
 
   <div id="stats" class="enter" style="--i:1"><div id="st1"><small id="s1L"></small><b id="s1V"></b></div></div>
-  <div id="addT" class="hidden"><button class="glass" id="add2h" aria-label="Set session to 2 hours">+2<small>hrs</small></button><div id="st2"><b id="s2V"></b></div></div>
+  
     <div id="slide" class="enter glass glass--soft" style="--i:3"><span id="hint">&nbsp;</span><button id="power" class="glass" aria-label="Power"><svg viewBox="0 0 24 24"><path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button></div>
 
   <div id="sleep"><div id="sleepFace"><div class="c" id="sleepClock"></div><div class="t" id="sleepTemp"></div><div class="w">Touch to wake</div></div></div>
@@ -428,7 +400,7 @@ var r=function(e,t){return r=Object.setPrototypeOf||{__proto__:[]}instanceof Arr
 <script>
 "use strict";
 /* =====================================================  CONFIG  ===================================================== */
-const VERSION = "1.4.1";
+const VERSION = "1.4.5";
 const CFG = {
   minC: 40, maxC: 90,                 // US Xenio limit is 194°F / 90°C. The panel enforces this too.
   pollActiveMs: 10000,                // sauna on, or someone is using the panel
@@ -444,7 +416,7 @@ const CFG = {
   ambientMs: 0,                       // 0 = controls never fade on their own (panel stays full until it sleeps)
   sleepMs: 60 * 60000,                // 1 hr with no touch -> ember dim screen (only when the sauna is off)
   slideMinMs: 350,
-  maxSessionMin: 60,                  // his heater ends sessions at 1 hr (max on-time setting); add time never asks for more                    // a slide to start faster than this is treated as a wipe, not a start
+  maxSessionMin: 60, sessionMin: 240,   // every start asks for a 4 hr session (Xenio applies onTime at the next start, not mid-session)                  // his heater ends sessions at 1 hr (max on-time setting); add time never asks for more                    // a slide to start faster than this is treated as a wipe, not a start
   deviceStaleMs: 45 * 60000,          // no word from the sauna for this long = treat it as offline
   musicPackage: "com.spotify.music",
   renderScale: 1, base: "https://prod.myharvia-cloud.net",
@@ -571,7 +543,7 @@ function setLight(on) { if (!S.signedIn) return; const prev = S.light; S.light =
 let tgtTimer = 0, tgtBase = null; function setTarget(c) { if (!S.signedIn) return; c = clamp(Math.round(c), CFG.minC, CFG.maxC); if (c === S.target) return; if (tgtBase === null) tgtBase = S.target; S.target = c; hold.target = now() + CFG.holdMs + 1000; pulse = Math.max(pulse, .3); render(); clearTimeout(tgtTimer);
   tgtTimer = setTimeout(() => { const want = S.target, base = tgtBase; tgtBase = null; hold.target = now() + CFG.holdMs; pending.target = { want, sentAt: now(), until: now() + CFG.targetVerifyMs }; sendCmd({ targetTemp: want }, "target").then(ok => { if (!ok) { const mine = pending.target && pending.target.want === want; if (mine) delete pending.target; if (mine && tgtBase === null) { hold.target = 0; S.target = S.rep.target !== null ? S.rep.target : (base !== null ? base : S.target); render(); notify("Couldn't reach the sauna", "The temperature wasn't changed."); } } goFast(); }); }, 700); }
 function sendStart(why, gen) { const sentAt = now(); startsInFlight++;
-  return sendCmd({ active: 1, targetTemp: S.target }, why).then(ok => { startsInFlight--;
+  return sendCmd({ active: 1, targetTemp: S.target, onTime: CFG.sessionMin }, why).then(ok => { startsInFlight--;
     if (!ok && !(pending.active && pending.active.want && gen === startGen)) lateStartRiskUntil = now() + 90000;                                      // we don't know if that start got through: watch for it landing late
     else if (sentAt < cancelStartsBefore && gen === startGen && !(pending.active && pending.active.want) && !S.active) { log("a start landed after it was cancelled: stopping again"); forceStop("cancel late start", true); }
     return ok; }); }
@@ -605,11 +577,38 @@ $("track").setAttribute("d", arc(1));
 const NT = 81; function makeTicks(g, r0, r1, n) { const ns = "http://www.w3.org/2000/svg", out = []; for (let i = 0; i < n; i++) { const a = A0 + SW * i / (n - 1), [x0, y0] = pol(a, i % 2 ? r0 + (r1 - r0) * .45 : r0), [x1, y1] = pol(a, r1), l = document.createElementNS(ns, "line"); l._a = a * Math.PI / 180; l._r0 = i % 2 ? r0 + (r1 - r0) * .45 : r0; l._r1 = r1; l.setAttribute("x1", x0.toFixed(1)); l.setAttribute("y1", y0.toFixed(1)); l.setAttribute("x2", x1.toFixed(1)); l.setAttribute("y2", y1.toFixed(1)); g.appendChild(l); out.push(l); } return out; }
 const TK = makeTicks($("ticks"), 175, 192, NT);
 function lightTicks(arr, f) { const n = Math.round(clamp(f, 0, 1) * (arr.length - 1)); for (let i = 0; i < arr.length; i++) { const on = f > .01 && i <= n; if (arr[i]._on !== on) { arr[i]._on = on; arr[i].classList.toggle("on", on); } } }
-let sessOn = false, sessStart = null, rateSaved = false;
 const clockAt = min => new Date(Date.now() + min * 60000).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 const hm = m => Math.floor(m / 60) + ":" + String(m % 60).padStart(2, "0");
-function eta() { if (!S.active || S.temp == null || S.temp >= S.target - 1.5) return null; const t = now(); if (!hist.length || t - hist[hist.length - 1][0] > 20000) hist.push([t, S.temp]); hist = hist.filter(h => h[0] > t - 12 * 60000);
-  const [t0, c0] = hist[0], min = (t - t0) / 60000; if (min < 2 || S.temp - c0 < .8) return null; return clamp(Math.round((S.target - S.temp) / ((S.temp - c0) / min)), 1, 180); }
+/* Ready-time estimate, learned from past sessions.
+   The anteroom sits near the same temperature every time, so climbing from one degree to the next takes about
+   the same time each session, slower near the top as the benches and walls soak up heat. We keep, for every
+   whole °C, the minutes it took to climb to the next one (a running mean that keeps following the newest
+   sessions), and add up the steps still ahead. Steps never seen yet fall back to this session's live rate. */
+const LEARN_N = 8;          // the newest session always counts for at least 1/8, so the curve tracks seasons
+const MAX_STEP_MIN = 15;    // a slower step means missing data (offline, door open), not heating: don't learn it
+let climb = null;           // this session's last whole-degree crossing: { c, t }; t is null until the first crossing
+function learnClimb() {
+  if (!S.active || S.temp == null || isReady() || api instanceof MockHarvia) { climb = null; return; }
+  const c = Math.floor(S.temp), t = now();
+  if (!climb || c < climb.c) { climb = { c, t: null }; return; }              // start, or a dip: wait for a clean crossing
+  if (c === climb.c) return;
+  const per = (t - climb.t) / 60000 / (c - climb.c);                            // minutes per °C, split over every step crossed
+  if (climb.t !== null && per <= MAX_STEP_MIN) {
+    const steps = store.get("climb", {});
+    for (let k = climb.c; k < c; k++) { const [m, n] = steps[k] || [0, 0], w = Math.min(n + 1, LEARN_N); steps[k] = [m + (per - m) / w, w]; }
+    store.set("climb", steps);
+  }
+  climb = { c, t };
+}
+function liveRate() {   // °C per minute over the last 12 min of this session, once there are 2 min of data
+  const t = now(); if (!hist.length || t - hist[hist.length - 1][0] > 20000) hist.push([t, S.temp]); hist = hist.filter(h => h[0] > t - 12 * 60000);
+  const [t0, c0] = hist[0], min = (t - t0) / 60000; return min < 2 || S.temp - c0 < .8 ? null : (S.temp - c0) / min; }
+function minutesToReady(from, target, rate) {   // null when some step ahead is neither learned nor covered by a live rate
+  const steps = store.get("climb", {}), goal = target - 1.5; let m = 0;
+  for (let x = from; x < goal; ) { const k = Math.floor(x), nx = Math.min(k + 1, goal), per = steps[k] ? steps[k][0] : rate ? 1 / rate : null;
+    if (per === null) return null; m += (nx - x) * per; x = nx; }
+  return m; }
+function eta() { if (!S.active || S.temp == null || S.temp >= S.target - 1.5) return null; const m = minutesToReady(S.temp, S.target, liveRate()); return m === null ? null : clamp(Math.round(m), 1, 180); }
 function isReady() { return S.active && S.temp != null && (S.temp >= S.target - 1.5 || S.atTemp); }
 let lastTgtShown = null, noticeTimer = 0;
 function notify(title, body, ms) { $("noticeT").textContent = title; $("noticeB").textContent = body || ""; $("notice").classList.add("show"); clearTimeout(noticeTimer); noticeTimer = ms >= 30000 ? 0 : setTimeout(() => $("notice").classList.remove("show"), ms || 9000); wake(); }
@@ -637,24 +636,19 @@ function renderView() { const u = useF ? "°F" : "°C", ready = isReady(), rem =
   $("sleepTemp").textContent = (link && S.rep.active === false ? "Sauna off" : !link ? "Can't reach the sauna" : "Sauna"); }
 function renderExtras(ready, rem, e, link) {
   lightTicks(TK, S.temp == null ? 0 : frac(S.temp));
-  if (S.active && !sessOn) { sessStart = S.temp == null ? null : { t: now(), c: S.temp }; rateSaved = false; } sessOn = S.active;
-  if (S.active && S.temp != null && !sessStart) sessStart = { t: now(), c: S.temp };
-  if (S.active && ready && !rateSaved && sessStart) { rateSaved = true; const min = (now() - sessStart.t) / 60000, d = S.temp - sessStart.c; if (min > 3 && d > 10) store.set("rate", d / min); }   // learn how fast this room heats, for "ready at" before starting
+  learnClimb();
   const s1 = $("st1"), s2 = $("st2"), stats = $("stats");
-  if (S.active) { s2.classList.remove("hidden"); $("s2V").textContent = rem > 0 ? hm(rem) + " left" : "--";
+  if (S.active) { s2.classList.remove("hidden"); $("s2V").textContent = rem > 0 ? hm(rem) : "--";
     if (ready) s1.classList.add("hidden"); else { $("s1L").textContent = "Ready at"; $("s1V").textContent = e ? clockAt(e) : "--"; s1.classList.remove("hidden"); } stats.style.opacity = 1; }
-  else { s2.classList.add("hidden"); const rate = store.get("rate", null), gap = S.temp == null ? 0 : S.target - S.temp;
-    if (link && typeof rate === "number" && rate > .05 && gap > 2) { $("s1L").textContent = "Start now, ready at"; $("s1V").textContent = clockAt(Math.round(gap / rate)); s1.classList.remove("hidden"); stats.style.opacity = .8; } else { s1.classList.add("hidden"); stats.style.opacity = 0; } }
-  $("addT").classList.toggle("hidden", !(S.active && S.phase === "idle")); }
+  else { s2.classList.add("hidden"); const pre = S.temp == null ? null : minutesToReady(S.temp, S.target, null);   // only once the whole climb has been learned
+    if (link && pre !== null && pre >= 1) { $("s1L").textContent = "Start now, ready at"; $("s1V").textContent = clockAt(Math.round(pre)); s1.classList.remove("hidden"); stats.style.opacity = .8; } else { s1.classList.add("hidden"); stats.style.opacity = 0; } }
+  }
 
 /* =====================================================  CONTROLS  ===================================================== */
 function nudge(dir) { if (!S.signedIn) return; setTarget(S.target + dir); }   /* v17: one step per tap (heater setpoint is whole °C) */
 let holding = false;
 function tap(el, fn) { let last = 0; el.addEventListener("click", ev => { const t = now(); if (t - last < 90) return; last = t; fn(ev); }); }   // ignore double-fires from wet fingers
-tap($("add2h"), add2h);
-/* +2 hrs: sets the heater's session length (onTime, minutes; Xenio honours whole hours). ponytail: test build, the wall panel shows whether it resets the countdown */
-async function add2h() { if (!S.signedIn || !S.active) return; log("set onTime 120");
-  if (await sendCmd({ onTime: 120 }, "onTime")) { notify("2 hours sent", "Check the time left on the wall panel."); schedulePoll(400); } else notify("Time not sent", "Try again, or use the wall controller."); }
+
 tap($("noticeX"), () => { clearTimeout(noticeTimer); $("notice").classList.remove("show"); });
 tap($("tUp"), () => nudge(1)); tap($("tDown"), () => nudge(-1));
 (function () { const sl = $("slide"), b = $("power"); let pid = null, t0 = 0, x0 = 0, y0 = 0, raf = 0, fired = false;   // hold to start: press the power button and keep holding until the ring fills; moving or lifting early cancels, so a wipe can't start it
@@ -757,7 +751,7 @@ vec2 warp(vec2 uv, float t, float amp){ vec2 q = uv * 3.2; return uv + amp * vec
 /* v15 orb: off = the cold reference photo with its stars turning slowly · on = the hot reference photo with its marbling flowing
    (only the fine detail moves; the photo's light and shadow stay where they are) · off<->on = a soft radial bloom
    always = thin ring + soft halo · dial = long glowing trail behind the knob · background = horizon photo with drifting clouds */
-uniform vec4 uPill; uniform float uPillA;
+
 uniform sampler2D uHill;
 vec3 bgAt(vec2 fc, float breathe){
   vec3 col = vec3(.006, .005, .008);
@@ -850,17 +844,6 @@ void main(){
       float g = exp(-d * d / (.004 * .004)) * 1.1 + exp(-abs(d) / .05) * .5 + exp(-abs(d) / .16) * .38 * step(d, 0.) + exp(-abs(d) / .03) * .22 * step(0., d);
       col += mix(vec3(1., .56, .24), vec3(1., .95, .86), exp(-abs(d) / .018)) * g * along * uOn; } }
 
-  /* v21 liquid glass for the time pill: refracts the real background (edge lensing, slight magnification, chroma at the rim) */
-  if (uPillA > .01) { vec2 pc = uPill.xy + uPill.zw * .5, hs = uPill.zw * .5; float rr = hs.y;
-    vec2 q = gl_FragCoord.xy - pc, k = abs(q) - hs + rr; float d = length(max(k, 0.)) + min(max(k.x, k.y), 0.) - rr;
-    if (d < 1.5) { float rim = hs.y * .55, t = clamp(-d / rim, 0., 1.), bend = pow(1. - t, 2.2);
-      vec2 kp = max(k, 0.); vec2 nq = (kp.x + kp.y > 0.) ? normalize(kp) * sign(q) : vec2(0., sign(q.y));
-      vec2 disp = -q * .07 - nq * bend * 2.5;   /* v22: magnify only + a hair of edge bend, so no ghost copy of the horizon */
-      vec3 g = vec3(bgAt(gl_FragCoord.xy + disp * 1.06, breathe).r, bgAt(gl_FragCoord.xy + disp, breathe).g, bgAt(gl_FragCoord.xy + disp * .94, breathe).b);
-      g = g * 1.25 + .012;
-      float top = smoothstep(-.2, 1., q.y / hs.y);
-      g += vec3(1.) * (exp(d / 1.2) * (.10 + .22 * top)) + vec3(1., .85, .7) * exp(d / 7.) * .025 * (1. - top);
-      float a = smoothstep(1.5, -.5, d) * uPillA; col = mix(col, g, a); } }
   { float mx = max(col.r, max(col.g, col.b)); if (mx > 1.) col /= mx; }
   gl_FragColor = vec4(col, 1.);
 }`;
@@ -872,7 +855,7 @@ function initGL() { try { gl = cv.getContext("webgl", { antialias: false, alpha:
     const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o) || "shader"); return o; };
     const pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, "attribute vec2 a; void main(){ gl_Position = vec4(a,0.,1.); }")); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FRAG)); gl.bindAttribLocation(pr, 0, "a"); gl.linkProgram(pr); mainPr = pr; if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error("link"); gl.useProgram(pr);
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); const a = gl.getAttribLocation(pr, "a"); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    ["uHill", "uPill", "uPillA", "uRes", "uC", "uT", "uPh", "uHeat", "uOn", "uR", "uPulse", "uAdj", "uKnob", "uTex", "uFlow", "uCold", "uBg", "uTrail", "uBgA"].forEach(n => U[n] = gl.getUniformLocation(pr, n));
+    ["uHill", "uRes", "uC", "uT", "uPh", "uHeat", "uOn", "uR", "uPulse", "uAdj", "uKnob", "uTex", "uFlow", "uCold", "uBg", "uTrail", "uBgA"].forEach(n => U[n] = gl.getUniformLocation(pr, n));
     const mkTex = (img, unit, mip) => { const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
       const upl = () => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); if (mip) gl.generateMipmap(gl.TEXTURE_2D);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mip ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); };
@@ -885,7 +868,7 @@ cv.addEventListener("webglcontextlost", ev => { ev.preventDefault(); glOk = fals
 cv.addEventListener("webglcontextrestored", () => { glOk = initGL(); if (glOk) app.style.background = ""; log("graphics context restored: " + glOk); });
 
 let phase = 0, adjAt = -1e9, bumpA = 0, bumpTi = -1, bumpLast = -1;
-let pillA = 0, onLin = 0, heroKey = "", onS = 0, heatS = 0, last = performance.now(), kA = A0, kV = 0, dialFrac = null, frameNo = 0, T0 = performance.now();
+let onLin = 0, heroKey = "", onS = 0, heatS = 0, last = performance.now(), kA = A0, kV = 0, dialFrac = null, frameNo = 0, T0 = performance.now();
 function frame(t) { requestAnimationFrame(frame); try { frameView(t); } catch (e) { viewErr(e); } }
 function frameView(t) { const b = document.body.classList; if (document.hidden || b.contains("asleep")) { last = t; T0 = t; flowT = 0; return; }
   frameNo++; const calm = b.contains("ambient") || (b.contains("off") && now() - lastTouch > 60000); if (calm && frameNo % 2) return;                     // 30 fps is plenty when nothing is happening; halves heat and power
@@ -902,7 +885,7 @@ function frameView(t) { const b = document.body.classList; if (document.hidden |
   const R = rN * W, box = R * 400 / 160; const hk = box.toFixed(1) + "|" + (cyN * H).toFixed(1) + "|" + W; if (hk !== heroKey) { heroKey = hk; hero.style.width = hero.style.height = box + "px"; hero.style.left = (W - box) / 2 + "px"; hero.style.top = (cyN * H - box / 2) + "px"; }
   { const w = onS * (.3 + .7 * heatS), G = [[0, 61, 131, 255], [.3, 255, 92, 26], [.6, 255, 100, 30], [1, 255, 118, 40]]; let i = 0; while (i < 2 && w > G[i + 1][0]) i++; const f = clamp((w - G[i][0]) / (G[i + 1][0] - G[i][0]), 0, 1), ch = j => Math.round(G[i][j] + (G[i + 1][j] - G[i][j]) * f); document.documentElement.style.setProperty("--glow", `rgb(${ch(1)},${ch(2)},${ch(3)})`); }
   if (glOk) { const t1 = performance.now(), sx = cv.width / W; gl.viewport(0, 0, cv.width, cv.height); gl.uniform2f(U.uRes, cv.width, cv.height); gl.uniform2f(U.uC, cv.width / 2, cv.height - cyN * H * sx); gl.uniform1f(U.uR, R * sx);
-    gl.uniform1f(U.uT, ((t - T0) / 1000) % 86400); gl.uniform1f(U.uPh, phase); gl.uniform1f(U.uHeat, onS * (.3 + .7 * heatS)); gl.uniform1f(U.uOn, onS); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uAdj, bumpA); gl.uniform1f(U.uKnob, kA * Math.PI / 180); flowT = (flowT + dt * (.125 + .03 * heatS)) % 86400; gl.uniform1f(U.uFlow, flowT); trailA = showOn ? trailA + (kA - trailA) * (1 - Math.exp(-dt * 16)) : kA; gl.uniform1f(U.uTrail, trailA * Math.PI / 180); { const at = $("addT"), rb = at.getBoundingClientRect(), vis = !at.classList.contains("hidden") && !document.body.classList.contains("modal"); pillA += ((vis ? 1 : 0) - pillA) * (1 - Math.exp(-dt * 6)); const ar = cv.getBoundingClientRect(), kx = cv.width / ar.width, ky = cv.height / ar.height; gl.uniform4f(U.uPill, (rb.left - ar.left) * kx, cv.height - (rb.bottom - ar.top) * ky, rb.width * kx, rb.height * ky);   /* v24: measured from the canvas, so it lines up when the panel is centred in a wide window */ gl.uniform1f(U.uPillA, pillA); } gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.uniform1f(U.uT, ((t - T0) / 1000) % 86400); gl.uniform1f(U.uPh, phase); gl.uniform1f(U.uHeat, onS * (.3 + .7 * heatS)); gl.uniform1f(U.uOn, onS); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uAdj, bumpA); gl.uniform1f(U.uKnob, kA * Math.PI / 180); flowT = (flowT + dt * 1.25 * (.125 + .03 * heatS)) % 86400;   /* 1.4.5: whole lava speed range 25% faster */ gl.uniform1f(U.uFlow, flowT); trailA = showOn ? trailA + (kA - trailA) * (1 - Math.exp(-dt * 16)) : kA; gl.uniform1f(U.uTrail, trailA * Math.PI / 180); gl.drawArrays(gl.TRIANGLES, 0, 3);
     /* adaptive quality: if frames are slow, render the background at a lower resolution; creep back up when there is headroom */
     quality.acc += dt * 1000 / (calm ? 2 : 1); if (++quality.n >= 60) { quality.avg = quality.acc / quality.n; quality.n = 0; quality.acc = 0; const since = t1 - quality.lastChange;
       if (false /* auto quality off: full resolution until real use shows a problem */ && quality.avg > 24 && quality.scale > .3 && since > 4000) { quality.scale = Math.max(.3, quality.scale - .08); quality.lastChange = t1; layout(); log("gpu: lowered detail to " + quality.scale.toFixed(2)); }
