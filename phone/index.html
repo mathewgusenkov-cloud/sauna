@@ -320,7 +320,7 @@ body #slide.glass.on { left: calc(var(--s)*45.5) !important; }
     <div id="err"></div><button class="btn" type="submit" id="loginGo">Continue</button><button class="btn text" type="button" id="demoBtn">Preview with demo data</button></form></div>
 
   <div id="settings" class="sheet hidden"><div class="box"><h1>Panel settings</h1>
-    <div class="rows"><button id="setUnit"><span>Temperature unit</span><em id="setUnitV"></em></button><label id="setBright" class="hidden"><span>Brightness</span><input id="setBrightR" type="range" min="10" max="255" step="1"></label><button id="setReload"><span>Reload panel</span><em>Fixes most glitches</em></button><button id="setDiag"><span>Diagnostics</span><em id="setVer"></em></button><button id="setOut"><span>Sign out</span><em id="setAcct"></em></button></div>
+    <div class="rows"><button id="setUnit"><span>Temperature unit</span><em id="setUnitV"></em></button><label id="setBright" class="hidden"><span>Brightness</span><input id="setBrightR" type="range" min="10" max="255" step="1"></label><button id="setReload"><span>Reload panel</span><em>Fixes most glitches</em></button><button id="setDiag"><span>Diagnostics</span><em id="setVer"></em></button><button id="setWidget"><span>Widget key</span><em>Copy for Scriptable</em></button><button id="setOut"><span>Sign out</span><em id="setAcct"></em></button></div>
     <div id="diag" class="hidden"></div><button class="btn ghost" id="setClose">Done</button></div></div>
 </div>
 
@@ -414,7 +414,7 @@ var r=function(e,t){return r=Object.setPrototypeOf||{__proto__:[]}instanceof Arr
 <script>
 "use strict";
 /* =====================================================  CONFIG  ===================================================== */
-const VERSION = "1.4.6";
+const VERSION = "1.4.7";
 const CFG = {
   minC: 40, maxC: 90,                 // US Xenio limit is 194°F / 90°C. The panel enforces this too.
   pollActiveMs: 10000,                // sauna on, or someone is using the panel
@@ -707,6 +707,15 @@ function closeSettings() { clearTimeout(setT); $("settings").classList.add("hidd
 $("setBrightR").addEventListener("input", ev => { const v = clamp(Math.round(+ev.target.value) || 150, 10, 255); store.set("ubright", v); fullyCall("setScreenBrightness", v); clearTimeout(setT); setT = setTimeout(closeSettings, 60000); });
 tap($("setClose"), closeSettings); tap($("setUnit"), () => { useF = !useF; store.set("unit", useF ? "F" : "C"); lastTgtShown = null; $("setUnitV").textContent = useF ? "°F" : "°C"; render(); });
 tap($("setReload"), () => safeReload("manual", true)); tap($("setOut"), () => { if (now() - outArmed > 5000) { outArmed = now(); $("setOut").firstElementChild.textContent = "Tap again to sign out · guests won't be able to use the panel"; return; } log("signed out by user"); const stillOn = S.active; api.logout(); S.signedIn = false; clearTimeout(setT); $("settings").classList.add("hidden"); needLogin(stillOn ? "The sauna is still on. It runs until its timer ends or it is stopped at the wall." : "", true); });
+/* Widget key: what the Scriptable home screen widget needs to read the sauna on its own (Mathew approved sharing this
+   sign-in with family phones, Oct 11). ClipboardItem takes a promise, so Safari keeps the tap's permission while the session loads. */
+function widgetKey() { return new Promise((res, rej) => { const u = api instanceof Harvia && api.pool && api.pool.getCurrentUser(); if (!u || !api.deviceId) return rej(new Error("Sign in first."));
+  u.getSession((e, ss) => { if (e) return rej(e); const ep = api.ep;
+    res("GSK1." + btoa(JSON.stringify({ pool: ep.users.userPoolId, cid: ep.users.clientId, rt: ss.getRefreshToken().getToken(), dev: api.deviceId, gqlDevice: ep.device.endpoint, gqlData: ep.data.endpoint, unit: useF ? "F" : "C" }))); }); }); }
+tap($("setWidget"), () => { const k = widgetKey(), done = () => notify("Widget key copied", "Open Scriptable and run the Goose Sauna script once.");
+  const fail = e => notify("Couldn't copy the key", (e && e.message) || "Try again.");
+  if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) navigator.clipboard.write([new ClipboardItem({ "text/plain": k.then(t => new Blob([t], { type: "text/plain" })) })]).then(done, fail);
+  else k.then(t => navigator.clipboard.writeText(t)).then(done, fail); });
 tap($("setDiag"), () => { const d = $("diag"); d.classList.toggle("hidden"); const f = fullyApi();
   d.textContent = ["version " + VERSION + "   up " + Math.round((now() - bootAt) / 60000) + " min", "mode " + (api instanceof MockHarvia ? "mock" : "live") + "   storage " + (store.ok ? "ok" : "UNAVAILABLE") + "   kiosk " + (f ? "fully" : "no"),
     "online " + S.online + "   device ok " + S.deviceOk + "   last ok " + (S.lastOk ? Math.round((now() - S.lastOk) / 1000) + "s ago" : "never"), "signed in " + Math.round((wall() - store.get("loginAt", wall())) / 864e5) + " days ago", "gpu scale " + quality.scale.toFixed(2) + "   frame " + quality.avg.toFixed(1) + " ms", f ? "battery " + fullyCall("getBatteryLevel") + "%  plugged " + fullyCall("isPlugged") : "", "vp " + innerWidth + "x" + innerHeight + "  dpr " + devicePixelRatio + "  canvas " + cv.width + "x" + cv.height, rawDiag, (navigator.userAgent.match(/Chrome\/[\d.]+/) || [""])[0], "", ...LOG.slice(-60).reverse()].join("\n"); });
