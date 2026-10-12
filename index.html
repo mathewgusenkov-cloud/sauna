@@ -302,6 +302,13 @@ body.off header .name { font-weight: 500 !important; color: #fff !important; }
 #sleep .c { font-variant-numeric: tabular-nums; font-size: calc(var(--s)*7); font-weight: 200; letter-spacing: -.03em; line-height: 1; color: rgba(255,255,255,.62); }
 #sleep .t { font-size: calc(var(--s)*1.75); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.4); }
 #sleep .w { margin-top: calc(var(--s)*3); font-size: calc(var(--s)*1.75); letter-spacing: .02em; color: rgba(255,255,255,.34); }
+body #addT, body #addT.hidden { display: block !important; left: calc(var(--s)*55) !important; width: calc(var(--s)*9) !important; height: calc(var(--s)*9) !important; top: calc(var(--s)*136.75) !important; border-radius: 50% !important; overflow: visible; background: rgba(255,255,255,.045) !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.26), inset 0 1px 0 rgba(255,255,255,.18) !important; -webkit-backdrop-filter: blur(8px) saturate(160%) !important; backdrop-filter: blur(8px) saturate(160%) !important; }
+body #addT button, body #addT button.glass { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50% !important; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--s)*.25); color: #fff; line-height: 1; font-size: calc(var(--s)*2.75) !important; }
+body #addT button:active { background: rgba(255,255,255,.07) !important; }
+body #addT button small { font-size: calc(var(--s)*1.25) !important; }
+body #addT #st2 { position: absolute; display: block !important; top: calc(100% + var(--s)*1.375); left: -80%; right: -80%; text-align: center; }
+body #addT #st2 b { font-size: calc(var(--s)*1.75) !important; font-weight: 500 !important; letter-spacing: .14em !important; text-transform: uppercase; color: rgba(255,255,255,.8) !important; white-space: nowrap; }
+body #slide.glass.on { left: calc(var(--s)*36) !important; }
 </style>
 </head>
 <body>
@@ -315,7 +322,7 @@ body.off header .name { font-weight: 500 !important; color: #fff !important; }
   <div id="notice" role="status"><b id="noticeT"></b><span id="noticeB"></span><button id="noticeX" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
 
   <div id="stats" class="enter" style="--i:1"><div id="st1"><small id="s1L"></small><b id="s1V"></b></div></div>
-  <div id="addT" class="hidden"><button class="glass" data-m="-10">−10<small>min</small></button><div id="st2"><small>Time left</small><b id="s2V"></b></div><button class="glass" data-m="10">+10<small>min</small></button></div>
+  <div id="addT" class="hidden"><button class="glass" id="add2h" aria-label="Set session to 2 hours">+2<small>hrs</small></button><div id="st2"><b id="s2V"></b></div></div>
     <div id="slide" class="enter glass glass--soft" style="--i:3"><span id="hint">&nbsp;</span><button id="power" class="glass" aria-label="Power"><svg viewBox="0 0 24 24"><path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button></div>
 
   <div id="sleep"><div id="sleepFace"><div class="c" id="sleepClock"></div><div class="t" id="sleepTemp"></div><div class="w">Touch to wake</div></div></div>
@@ -421,7 +428,7 @@ var r=function(e,t){return r=Object.setPrototypeOf||{__proto__:[]}instanceof Arr
 <script>
 "use strict";
 /* =====================================================  CONFIG  ===================================================== */
-const VERSION = "1.4.0";
+const VERSION = "1.4.1";
 const CFG = {
   minC: 40, maxC: 90,                 // US Xenio limit is 194°F / 90°C. The panel enforces this too.
   pollActiveMs: 10000,                // sauna on, or someone is using the panel
@@ -513,12 +520,11 @@ class MockHarvia {
     this.r.statusCodes = (M.door ? 2 : 0) | (this.t.heatOn ? 256 : 0) | (this.r.active && d <= 1.5 ? 32 : 0); if (M.door && this.r.active && !this.fast) { this.r.active = 0; this.t.remainingTime = 0; } }
   async init() {} hasSession() { return this.signed; } account() { return this.fast ? "demo" : "mock@example.com"; }
   async login(email, pw) { await new Promise(r => setTimeout(r, 300)); if (window.MOCK.fail === "network") throw new AppError("net", "network"); if (pw === "wrong") throw new AppError("auth", "Incorrect username or password."); this.signed = true; window.MOCK.authDead = false; store.set("mockSigned", true); }
-  async addTime(m) { await this.wait(); this.tick(); if (this.r.active) this.t.remainingTime += m; }
   logout() { this.signed = false; store.set("mockSigned", false); } async findDevice() { await this.wait(); }
   async state() { await this.wait(); this.tick(); return { reported: { ...this.r }, timestamp: window.MOCK.deviceSilent ? wall() - 3600000 : wall() }; }
   async telemetry() { await this.wait(); this.tick(); return { data: { ...this.t, temperature: Math.round(this.t.temperature * 10) / 10, remainingTime: Math.ceil(this.t.remainingTime) }, timestamp: window.MOCK.deviceSilent ? wall() - 3600000 : wall() }; }
   async set(p) { await this.wait(); this.tick(); const M = window.MOCK; if ("active" in p) { if (p.active && (M.rejectStart || M.door)) { /* silently ignored, like the real panel */ } else { this.r.active = p.active ? 1 : 0; this.t.remainingTime = p.active ? M.sessionMin : 0; } }
-    if ("targetTemp" in p) this.r.targetTemp = clamp(p.targetTemp | 0, CFG.minC, CFG.maxC); if ("light" in p) this.r.light = p.light ? 1 : 0; return {}; }
+    if ("targetTemp" in p) this.r.targetTemp = clamp(p.targetTemp | 0, CFG.minC, CFG.maxC); if ("light" in p) this.r.light = p.light ? 1 : 0; if ("onTime" in p) { this.r.onTime = p.onTime; if (this.r.active) this.t.remainingTime = p.onTime; } return {}; }
 }
 
 /* =====================================================  STATE + SYNC ENGINE  ===================================================== */
@@ -547,7 +553,7 @@ function applyState(st, tl) { const r = st.reported || {}, d = tl.data || {}, wa
   let tgt = Number(r.targetTemp); if (tgt > 110) tgt = f2c(tgt);                        // defensive: if a panel ever reports °F
   if (isFinite(tgt) && tgt > 0) { S.rep.target = clamp(Math.round(tgt), CFG.minC, CFG.maxC); take("target", S.rep.target); }
   if ("active" in r) { S.rep.active = bool(r.active); take("active", S.rep.active); } if ("light" in r) { S.rep.light = bool(r.light); take("light", S.rep.light); }   // S.rep = what the sauna itself says, even while our own change is being held on screen
-  rawDiag = "status " + r.statusCodes + "   unit " + r.tempUnit + "   tgt " + r.targetTemp + "   state ts " + st.timestamp + "   data ts " + tl.timestamp + "   rem " + d.remainingTime; const sc = parseInt(r.statusCodes, 10); if (isFinite(sc)) { S.door = !!(sc & 2); S.atTemp = !!(sc & 32); }
+  rawDiag = "status " + r.statusCodes + "   unit " + r.tempUnit + "   tgt " + r.targetTemp + "   state ts " + st.timestamp + "   data ts " + tl.timestamp + "   rem " + d.remainingTime + "   onTime " + r.onTime; const sc = parseInt(r.statusCodes, 10); if (isFinite(sc)) { S.door = !!(sc & 2); S.atTemp = !!(sc & 32); }
   const tRaw = d.temperature, t = Number(tRaw); if (tRaw != null && tRaw !== "" && isFinite(t) && t > -30 && t < 160) S.temp = t;
   const rRaw = d.remainingTime, rm = Number(rRaw); if (rRaw != null && rRaw !== "" && isFinite(rm)) S.remaining = Math.max(0, rm); S.heatOn = !!d.heatOn; if (S.active && S.remaining > 0) S.lastRem = S.remaining;
   S.dataAt = Math.max(st.timestamp || 0, tl.timestamp || 0); S.deviceOk = !S.dataAt || wall() - S.dataAt < CFG.deviceStaleMs;
@@ -635,20 +641,20 @@ function renderExtras(ready, rem, e, link) {
   if (S.active && S.temp != null && !sessStart) sessStart = { t: now(), c: S.temp };
   if (S.active && ready && !rateSaved && sessStart) { rateSaved = true; const min = (now() - sessStart.t) / 60000, d = S.temp - sessStart.c; if (min > 3 && d > 10) store.set("rate", d / min); }   // learn how fast this room heats, for "ready at" before starting
   const s1 = $("st1"), s2 = $("st2"), stats = $("stats");
-  if (S.active) { s2.classList.remove("hidden"); $("s2V").textContent = rem > 0 ? hm(rem) : "--";
+  if (S.active) { s2.classList.remove("hidden"); $("s2V").textContent = rem > 0 ? hm(rem) + " left" : "--";
     if (ready) s1.classList.add("hidden"); else { $("s1L").textContent = "Ready at"; $("s1V").textContent = e ? clockAt(e) : "--"; s1.classList.remove("hidden"); } stats.style.opacity = 1; }
   else { s2.classList.add("hidden"); const rate = store.get("rate", null), gap = S.temp == null ? 0 : S.target - S.temp;
     if (link && typeof rate === "number" && rate > .05 && gap > 2) { $("s1L").textContent = "Start now, ready at"; $("s1V").textContent = clockAt(Math.round(gap / rate)); s1.classList.remove("hidden"); stats.style.opacity = .8; } else { s1.classList.add("hidden"); stats.style.opacity = 0; } }
-  $("addT").classList.toggle("hidden", !(S.active && S.phase === "idle")); const [dn, upB] = $("addT").querySelectorAll("button"); dn.disabled = !(rem > 10); upB.disabled = !(rem < CFG.maxSessionMin); }
+  $("addT").classList.toggle("hidden", !(S.active && S.phase === "idle")); }
 
 /* =====================================================  CONTROLS  ===================================================== */
 function nudge(dir) { if (!S.signedIn) return; setTarget(S.target + dir); }   /* v17: one step per tap (heater setpoint is whole °C) */
 let holding = false;
 function tap(el, fn) { let last = 0; el.addEventListener("click", ev => { const t = now(); if (t - last < 90) return; last = t; fn(ev); }); }   // ignore double-fires from wet fingers
-for (const btn of $("addT").querySelectorAll("button")) tap(btn, () => addTime(+btn.dataset.m));
-/* add time: works in demo/mock. ponytail: the real MyHarvia command for this hasn't been captured yet, so the live panel says so instead of guessing at a heater command */
-async function addTime(m) { if (!S.signedIn || !S.active) return; const r0 = S.remaining || 0; m = clamp(r0 + m, 5, CFG.maxSessionMin) - r0; if (!m) return; if (!api.addTime) return notify("Adding time isn't connected yet", "Use the wall controller to add time for now.");
-  try { await api.addTime(m); S.remaining = (S.remaining || 0) + m; render(); schedulePoll(400); } catch (e) { notify("Time not added", "Try again, or use the wall controller."); } }
+tap($("add2h"), add2h);
+/* +2 hrs: sets the heater's session length (onTime, minutes; Xenio honours whole hours). ponytail: test build, the wall panel shows whether it resets the countdown */
+async function add2h() { if (!S.signedIn || !S.active) return; log("set onTime 120");
+  if (await sendCmd({ onTime: 120 }, "onTime")) { notify("2 hours sent", "Check the time left on the wall panel."); schedulePoll(400); } else notify("Time not sent", "Try again, or use the wall controller."); }
 tap($("noticeX"), () => { clearTimeout(noticeTimer); $("notice").classList.remove("show"); });
 tap($("tUp"), () => nudge(1)); tap($("tDown"), () => nudge(-1));
 (function () { const sl = $("slide"), b = $("power"); let pid = null, t0 = 0, x0 = 0, y0 = 0, raf = 0, fired = false;   // hold to start: press the power button and keep holding until the ring fills; moving or lifting early cancels, so a wipe can't start it
