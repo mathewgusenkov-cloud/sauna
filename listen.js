@@ -22,7 +22,7 @@
           var iv = crypto.getRandomValues(new Uint8Array(12));
           return pipe(enc.encode(JSON.stringify(obj)), CompressionStream)
             .then(function (z) { return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, aes, z); })
-            .then(function (ct) { var u = new Uint8Array(12 + ct.byteLength); u.set(iv); u.set(new Uint8Array(ct), 12); return fetch(RELAY + topic, { method: "POST", body: b64(u) }); });
+            .then(function (ct) { var u = new Uint8Array(12 + ct.byteLength); u.set(iv); u.set(new Uint8Array(ct), 12); return fetch(RELAY + topic, { method: "POST", body: b64(u), keepalive: true }); });
         }
         function listen(onMsg) {
           var es = new EventSource(RELAY + topic + "/sse");
