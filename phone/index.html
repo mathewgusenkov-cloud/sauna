@@ -249,6 +249,14 @@ body.off header .name { font-weight: 500 !important; color: #fff !important; }
 #noticeX { position: absolute; top: calc(var(--s)*.75); right: calc(var(--s)*.75); width: calc(var(--s)*8); height: calc(var(--s)*8); border-radius: 50%; display: grid; place-items: center; color: var(--ink-2); }
 #noticeX svg { width: calc(var(--s)*2.75); height: calc(var(--s)*2.75); fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
 #noticeX:active { background: rgba(255,255,255,.08); }
+/* ==================== DRY-OUT - same screen, the orb says what it is doing: no -/+ (TARGET stays), a tap-to-turn-off key that pops into place ==================== */
+.dots i { font-style: normal; animation: dot 1.2s infinite both; } .dots i:nth-child(2) { animation-delay: .2s; } .dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes dot { 0%, 80%, 100% { opacity: .15; } 40% { opacity: 1; } }
+body.drying #tUp, body.drying #tDown { opacity: 0 !important; pointer-events: none !important; transition: opacity .4s var(--out); }
+body.drying #ticks, body.drying #knob, body.drying #track, body.drying #prog { opacity: 0 !important; pointer-events: none !important; transition: opacity .6s var(--out); }
+body.drying #slide.glass, body.drying #slide.glass.busy { left: calc(50% - var(--s)*4.5) !important; }   /* the key stays centred through the switch-over */
+body #slide.glass.dryk { animation: dryk .7s var(--spring); }
+@keyframes dryk { 0% { transform: scale(.82); } 55% { transform: scale(1.08); } 100% { transform: none; } }
 
 /* ==================== SHEETS (sign-in, settings) - blurred scene behind one glass card ==================== */
 .sheet { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(3,5,10,.45); -webkit-backdrop-filter: blur(28px) saturate(130%); backdrop-filter: blur(28px) saturate(130%); }
@@ -277,12 +285,20 @@ body.off header .name { font-weight: 500 !important; color: #fff !important; }
 .rows input[type=range] { flex: 1 1 100%; width: 100%; max-width: none; margin: 0; height: calc(var(--s)*6); padding: 0; background: none; box-shadow: none; border-radius: 0; accent-color: #fff; touch-action: none; }
 #diag { max-height: 32vh; overflow: auto; font: 400 calc(var(--s)*1.5)/1.5 ui-monospace, Menlo, monospace; color: var(--ink-2); background: rgba(0,0,0,.35); border-radius: calc(var(--s)*2); padding: calc(var(--s)*2); white-space: pre-wrap; user-select: text; -webkit-user-select: text; }
 
-/* ==================== SLEEP - black, small dim text that drifts (no static pixels), graphics stopped ==================== */
-#sleep { position: absolute; inset: 0; z-index: 8; background: #000; display: grid; place-items: center; padding-bottom: 12%; box-sizing: border-box; opacity: 0; pointer-events: none; transition: opacity 1.5s; }
-#sleepFace { display: grid; justify-items: center; gap: calc(var(--s)*1.25); transition: transform 4s ease-in-out; }
-#sleep .c { font-variant-numeric: tabular-nums; font-size: calc(var(--s)*7); font-weight: 200; letter-spacing: -.03em; line-height: 1; color: rgba(255,255,255,.62); }
-#sleep .t { font-size: calc(var(--s)*1.75); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.4); }
-#sleep .w { margin-top: calc(var(--s)*3); font-size: calc(var(--s)*1.75); letter-spacing: .02em; color: rgba(255,255,255,.34); }
+/* ==================== SLEEP - the off screen at 75%, header and keys gone, a glass clock in the orb.
+   Graphics stop, so it is a still image; the tablet is a TFT LCD, so nothing burns in. ==================== */
+#sleep { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+#app { transition: filter 1.5s; }
+body.asleep #app { filter: brightness(.75); }
+body.asleep header, body.asleep #stats, body.asleep #slide, body.asleep #hero .stepper, body.asleep #tWrap, body.asleep #st2, body.asleep #notice { visibility: hidden; }
+body.asleep .read .now, body.asleep #state { display: none; }
+#sleepFace { display: none; }
+body.asleep #sleepFace { display: grid; justify-items: center; gap: calc(var(--s)*1.9); }
+#sleepFace .c { position: relative; font-size: calc(var(--t-xl)*.72); font-weight: 300; line-height: 1; letter-spacing: -.045em; font-variant-numeric: tabular-nums;
+  color: transparent; background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(214,226,255,.42)); -webkit-background-clip: text; background-clip: text; text-shadow: none;
+  filter: drop-shadow(0 0 calc(var(--s)*2.5) rgba(110,150,255,.28)); }
+#sleepFace sup { position: absolute; left: 100%; top: .32em; margin-left: .3em; font-size: .22em; letter-spacing: 0; color: rgba(235,240,255,.62); -webkit-text-fill-color: rgba(235,240,255,.62); }   /* outside the clipped box, so it gets its own colour */
+#sleepFace .t { font-size: calc(var(--s)*1.75); font-weight: 400; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.62); }
 #st2 { margin-top: calc(var(--s)*3.375); font-size: calc(var(--s)*1.75); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.62); font-variant-numeric: tabular-nums; }
 body #slide.glass.on { left: calc(var(--s)*45.5) !important; }
 /* ==================== PHONE (< 600 px wide): same panel, laid out for a tall narrow screen ==================== */
@@ -303,7 +319,7 @@ body #slide.glass.on { left: calc(var(--s)*45.5) !important; }
   <header><div class="name" id="name">Sauna</div><div class="meta"><span id="flag" class="hidden"></span><button id="musicBtn" class="hidden" aria-label="Open Spotify"><span class="sp"></span>Spotify</button><button id="setBtn" aria-label="Settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><span id="clock"></span></div></header>
 
   <div id="hero" class="fadein"><svg viewBox="0 0 400 400"><defs><radialGradient id="tg" gradientUnits="userSpaceOnUse" cx="200" cy="200" r="200"><stop offset=".86" style="stop-color:var(--glow);stop-opacity:.85"/><stop offset=".905" stop-color="#fff" stop-opacity=".28"/><stop offset=".95" stop-color="#fff" stop-opacity=".95"/><stop offset="1" style="stop-color:var(--glow);stop-opacity:.6"/></radialGradient></defs><g id="ticks"></g><path id="track"/><path id="prog"/><g id="knob"><circle class="hit" r="48"/><circle r="11"/></g></svg><div id="tPill"></div>
-    <div class="read"><div class="now"><span id="now">--</span><sup id="unit">°F</sup></div><div id="state">&nbsp;</div><div id="st2" class="hidden"><span id="s2V"></span> left</div><div class="value" id="tWrap"><span id="tVal">--</span><small id="tUnit">°F</small></div></div><div class="stepper"><button id="tDown" class="glass" aria-label="Lower temperature"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><button id="tUp" class="glass" aria-label="Raise temperature"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
+    <div class="read"><div id="sleepFace"><div class="c"><span id="sleepClock"></span><sup id="sleepAmPm"></sup></div><div class="t" id="sleepTemp"></div></div><div class="now"><span id="now">--</span><sup id="unit">°F</sup></div><div id="state">&nbsp;</div><div id="st2" class="hidden"><span id="s2V"></span> left</div><div class="value" id="tWrap"><span id="tVal">--</span><small id="tUnit">°F</small></div></div><div class="stepper"><button id="tDown" class="glass" aria-label="Lower temperature"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><button id="tUp" class="glass" aria-label="Raise temperature"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
 
   <div id="notice" role="status"><b id="noticeT"></b><span id="noticeB"></span><button id="noticeX" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
 
@@ -311,7 +327,7 @@ body #slide.glass.on { left: calc(var(--s)*45.5) !important; }
   
     <div id="slide" class="enter glass glass--soft" style="--i:3"><span id="hint">&nbsp;</span><button id="power" class="glass" aria-label="Power"><svg viewBox="0 0 24 24"><path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button></div>
 
-  <div id="sleep"><div id="sleepFace"><div class="c" id="sleepClock"></div><div class="t" id="sleepTemp"></div><div class="w">Touch to wake</div></div></div>
+  <div id="sleep"></div>
 
   <div id="login" class="sheet hidden"><div class="box hidden" id="guest"><div class="big">This panel needs its owner</div><div class="sub">It was signed out of the sauna account.<br>Please use the controller on the wall for now.</div><div id="guestWarn" style="color:#ffd08a;font-weight:500;margin-top:calc(var(--s)*2);min-height:1.4em"></div><button class="btn ghost" type="button" id="ownerBtn">I'm the owner · sign in</button></div>
     <form class="box" id="loginForm" autocomplete="on" novalidate><h1>Sign in</h1><p>Use your MyHarvia account, the same one as the phone app. Your password goes only to Harvia and is never stored on this tablet.</p>
@@ -414,7 +430,7 @@ var r=function(e,t){return r=Object.setPrototypeOf||{__proto__:[]}instanceof Arr
 <script>
 "use strict";
 /* =====================================================  CONFIG  ===================================================== */
-const VERSION = "1.4.7";
+const VERSION = "1.4.8";
 const CFG = {
   minC: 40, maxC: 90,                 // US Xenio limit is 194°F / 90°C. The panel enforces this too.
   pollActiveMs: 10000,                // sauna on, or someone is using the panel
@@ -431,6 +447,9 @@ const CFG = {
   sleepMs: 60 * 60000,                // 1 hr with no touch -> ember dim screen (only when the sauna is off)
   slideMinMs: 350,
   maxSessionMin: 60, sessionMin: 240,   // every start asks for a 4 hr session (Xenio applies onTime at the next start, not mid-session)                  // his heater ends sessions at 1 hr (max on-time setting); add time never asks for more                    // a slide to start faster than this is treated as a wipe, not a start
+  dryC: 82, dryMin: 50, dryOnTime: 60, dryFromC: 49,   /* dry-out: Turn off after a session that reached 120°F (49°C) holds 180°F (82°C) for 50 min.
+                                                       The heater only takes whole hours, so it restarts with onTime 60 as a backstop and the panel stops it at 50 */
+  coldC: 40,                          // a session that starts below 104°F is a cold start (walls and rocks at room temperature)
   deviceStaleMs: 45 * 60000,          // no word from the sauna for this long = treat it as offline
   musicPackage: "com.spotify.music",
   renderScale: 1, base: "https://prod.myharvia-cloud.net",
@@ -515,10 +534,12 @@ class MockHarvia {
 
 /* =====================================================  STATE + SYNC ENGINE  ===================================================== */
 const S = { name: String(store.get("name", "Sauna") || "Sauna").slice(0, 40), active: false, target: clamp(Number(store.get("target", 80)) || 80, 40, 90), light: false, temp: null, remaining: 0, door: false, heatOn: false, atTemp: false,
-            rep: { active: null, light: null, target: null }, repFrom: 0, online: true, deviceOk: true, signedIn: false, lastOk: 0, phase: "idle" /* idle | starting | stopping */, endedAt: 0, endWhy: "", failNote: "", dataAt: 0, lastRem: 0, startedAt: 0 };
+            rep: { active: null, light: null, target: null }, repFrom: 0, online: true, deviceOk: true, signedIn: false, lastOk: 0, phase: "idle" /* idle | starting | stopping */, endedAt: 0, endWhy: "", failNote: "", dataAt: 0, lastRem: 0, startedAt: 0, onTime: null };
 let authFails = 0, cancelHold = () => {}, cancelDrag = () => {}, rawDiag = "";
 let lastPollAt = 0, cancelStartsBefore = 0, startGen = 0, startsInFlight = 0, lateStartRiskUntil = 0;
 let api = null, useF = store.get("unit", "F") === "F", pulse = 0, fastUntil = 0, polling = false, pollTimer = 0, failCount = 0, hist = [], wasReady = false, lastTouch = now(), bootAt = now();
+let dry = null, onTimeFixAt = 0, dryEndAt = 0;   // dry: the switch-over into a dry-out { t: target °C, on: onTime min, stage: "stopping" | "starting" }
+const isDrying = () => S.active && S.target === CFG.dryC && S.onTime === CFG.dryOnTime;   // works for a dry-out started from any panel
 const hold = {}, pending = {};   // hold[field] = our value wins until this time; pending[field] = { want, until, tries }
 const dispT = c => { if (!useF) return c; const f = c2f(c), g = Math.round(f / 5) * 5; return Math.abs(f - g) < .95 ? g : Math.round(f); };
 const disp = c => Math.round(useF ? c2f(c) : c), bool = v => (v && typeof v === "object") ? !!v.on : (v === true || !!Number(v));
@@ -539,14 +560,17 @@ function applyState(st, tl) { const r = st.reported || {}, d = tl.data || {}, wa
   let tgt = Number(r.targetTemp); if (tgt > 110) tgt = f2c(tgt);                        // defensive: if a panel ever reports °F
   if (isFinite(tgt) && tgt > 0) { S.rep.target = clamp(Math.round(tgt), CFG.minC, CFG.maxC); take("target", S.rep.target); }
   if ("active" in r) { S.rep.active = bool(r.active); take("active", S.rep.active); } if ("light" in r) { S.rep.light = bool(r.light); take("light", S.rep.light); }   // S.rep = what the sauna itself says, even while our own change is being held on screen
-  rawDiag = "status " + r.statusCodes + "   unit " + r.tempUnit + "   tgt " + r.targetTemp + "   state ts " + st.timestamp + "   data ts " + tl.timestamp + "   rem " + d.remainingTime + "   onTime " + r.onTime; const sc = parseInt(r.statusCodes, 10); if (isFinite(sc)) { S.door = !!(sc & 2); S.atTemp = !!(sc & 32); }
+  rawDiag = "status " + r.statusCodes + "   unit " + r.tempUnit + "   tgt " + r.targetTemp + "   state ts " + st.timestamp + "   data ts " + tl.timestamp + "   rem " + d.remainingTime + "   onTime " + r.onTime; if (r.onTime != null && isFinite(Number(r.onTime))) S.onTime = Number(r.onTime); const sc = parseInt(r.statusCodes, 10); if (isFinite(sc)) { S.door = !!(sc & 2); S.atTemp = !!(sc & 32); }
   const tRaw = d.temperature, t = Number(tRaw); if (tRaw != null && tRaw !== "" && isFinite(t) && t > -30 && t < 160) S.temp = t;
   const rRaw = d.remainingTime, rm = Number(rRaw); if (rRaw != null && rRaw !== "" && isFinite(rm)) S.remaining = Math.max(0, rm); S.heatOn = !!d.heatOn; if (S.active && S.remaining > 0) S.lastRem = S.remaining;
   S.dataAt = Math.max(st.timestamp || 0, tl.timestamp || 0); S.deviceOk = !S.dataAt || wall() - S.dataAt < CFG.deviceStaleMs;
   if (wasActive && !S.active && S.phase === "idle") { S.endedAt = now(); S.endWhy = S.door ? "door" : S.lastRem <= 3 ? "timer" : "elsewhere"; hist = []; log("session ended (" + S.endWhy + ")"); }
-  if (!wasActive && S.active) { hist = []; S.endedAt = 0; S.failNote = ""; S.lastRem = S.remaining || 60; if (!S.startedAt || now() - S.startedAt > 120000) S.startedAt = now(); }
+  if (!wasActive && S.active) { const g = store.get("guess", null); if (!g || g.done || wall() - (g.made || 0) > 8 * 3600000) store.set("guess", { cold: S.temp != null && S.temp < CFG.coldC, made: wall(), at: 0 }); hist = []; S.endedAt = 0; S.failNote = ""; S.lastRem = S.remaining || 60; if (!S.startedAt || now() - S.startedAt > 120000) S.startedAt = now(); }
   if (S.rep.active === true && now() < lateStartRiskUntil && !pending.active) { lateStartRiskUntil = 0; log("a start we had given up on arrived late: stopping again"); forceStop("re-stop", true); notify("The sauna turned on late", "An earlier start command arrived late, after you were told it failed. It has been told to stop. Hold power if you do want it on.", 30000); goFast(); }
   if (S.active && document.body.classList.contains("asleep")) wake();                                  // started from the phone or the wall: show it
+  if (isDrying() && S.phase === "idle" && S.remaining > 0 && S.remaining <= CFG.dryOnTime - CFG.dryMin && now() - S.startedAt > 120000) { log("dry-out done"); stop(); }
+  if (!S.active && !dry && S.phase === "idle" && S.onTime === CFG.dryOnTime && now() - onTimeFixAt > 60000) {   // after a dry-out: next session 4 hr again, target back to what it was
+    onTimeFixAt = now(); const p = { onTime: CFG.sessionMin }, was = store.get("preDry", null); if (was && S.target === CFG.dryC) { p.targetTemp = was; S.target = was; hold.target = now() + CFG.holdMs; } sendCmd(p, "after dry-out"); }
   store.set("target", S.target); }
 
 /* commands: optimistic, then verified against what the sauna itself reports */
@@ -554,14 +578,14 @@ function forceStop(why, show) { const t = now(); if (show) { S.phase = "stopping
 async function sendCmd(payload, why) { try { await api.set(payload); log("sent " + JSON.stringify(payload)); return true; } catch (e) { log("send failed (" + why + "): " + e.message); if (e.kind === "auth") schedulePoll(0); return false; } }
 function goFast() { fastUntil = now() + CFG.fastForMs; schedulePoll(1200); }
 function setLight(on) { if (!S.signedIn) return; const prev = S.light; S.light = on; hold.light = now() + CFG.holdMs; pending.light = { want: on, sentAt: now(), until: now() + CFG.lightVerifyMs }; render(); sendCmd({ light: on ? 1 : 0 }, "light").then(ok => { if (!ok) { if (pending.light && pending.light.want === on) { delete pending.light; hold.light = 0; S.light = prev; } render(); notify("Couldn't reach the sauna", "The light didn't change. Check the Wi-Fi, or use the wall panel."); } goFast(); }); }
-let tgtTimer = 0, tgtBase = null; function setTarget(c) { if (!S.signedIn) return; c = clamp(Math.round(c), CFG.minC, CFG.maxC); if (c === S.target) return; if (tgtBase === null) tgtBase = S.target; S.target = c; hold.target = now() + CFG.holdMs + 1000; pulse = Math.max(pulse, .3); render(); clearTimeout(tgtTimer);
+let tgtTimer = 0, tgtBase = null; function setTarget(c) { if (!S.signedIn || isDrying()) return; c = clamp(Math.round(c), CFG.minC, CFG.maxC); if (c === S.target) return; if (tgtBase === null) tgtBase = S.target; S.target = c; hold.target = now() + CFG.holdMs + 1000; pulse = Math.max(pulse, .3); render(); clearTimeout(tgtTimer);
   tgtTimer = setTimeout(() => { const want = S.target, base = tgtBase; tgtBase = null; hold.target = now() + CFG.holdMs; pending.target = { want, sentAt: now(), until: now() + CFG.targetVerifyMs }; sendCmd({ targetTemp: want }, "target").then(ok => { if (!ok) { const mine = pending.target && pending.target.want === want; if (mine) delete pending.target; if (mine && tgtBase === null) { hold.target = 0; S.target = S.rep.target !== null ? S.rep.target : (base !== null ? base : S.target); render(); notify("Couldn't reach the sauna", "The temperature wasn't changed."); } } goFast(); }); }, 700); }
 function sendStart(why, gen) { const sentAt = now(); startsInFlight++;
-  return sendCmd({ active: 1, targetTemp: S.target, onTime: CFG.sessionMin }, why).then(ok => { startsInFlight--;
+  return sendCmd({ active: 1, targetTemp: S.target, onTime: dry ? dry.on : CFG.sessionMin }, why).then(ok => { startsInFlight--;
     if (!ok && !(pending.active && pending.active.want && gen === startGen)) lateStartRiskUntil = now() + 90000;                                      // we don't know if that start got through: watch for it landing late
     else if (sentAt < cancelStartsBefore && gen === startGen && !(pending.active && pending.active.want) && !S.active) { log("a start landed after it was cancelled: stopping again"); forceStop("cancel late start", true); }
     return ok; }); }
-function failStart(title, body) { delete pending.active; S.phase = "idle"; cancelStartsBefore = now(); S.failNote = "Didn't start"; S.failAt = now(); notify(title, body, 30000); render(); }
+function failStart(title, body) { if (dry) { dry = null; title = "Dry-out didn't start"; body = "The sauna is off. Prop the door open so the wood can air out."; } delete pending.active; S.phase = "idle"; cancelStartsBefore = now(); S.failNote = "Didn't start"; S.failAt = now(); notify(title, body, 30000); render(); }
 function start() { if (!S.signedIn || S.phase !== "idle" || S.active) return;
   if (!S.lastOk) return notify("Still connecting", "Give it a few seconds, then try again.");
   if (!S.online) return notify("No connection right now", "Use the controller on the wall to start the sauna.");
@@ -572,13 +596,21 @@ function start() { if (!S.signedIn || S.phase !== "idle" || S.active) return;
 function stop() { if (!S.signedIn || S.phase === "stopping") return; const wasStarting = S.phase === "starting"; cancelStartsBefore = now(); if (wasStarting) lateStartRiskUntil = now() + 90000; S.phase = "stopping"; S.active = false; hold.active = now() + CFG.holdMs; pulse = .4;
   pending.active = { want: false, sentAt: now(), until: now() + CFG.stopVerifyMs, resendAt: now() + 8000, tries: 1 }; render(); log(wasStarting ? "start cancelled by user" : "stop requested"); sendCmd({ active: 0 }, "stop").then(() => goFast()); }
 
+/* Turn off (a hold) after a real session (120°F+) goes straight into a dry-out: the heater restarts at 180°F for 50 min so sweat and steam
+   bake out of the wood (Trumpkin: hold 149°F+ at the benches after use). A tap on the power key ends it.
+   The switch-over is: turn the heater off, then straight back on with new settings (the cloud only applies onTime at a start). */
+function endSession() { if (dry || isDrying() || S.phase !== "idle" || S.temp == null || S.temp < CFG.dryFromC) { dry = null; return stop(); }
+  store.set("preDry", S.target); dry = { t: CFG.dryC, on: CFG.dryOnTime, stage: "stopping" }; dryEndAt = 0; log("dry-out requested"); stop(); }
+function relaunch() { if (!dry || dry.stage !== "starting" || S.active || S.phase !== "idle") return; S.target = dry.t; hold.target = now() + CFG.holdMs; start(); if (S.phase !== "starting") failStart(); }
+function dryLeft() { const ms = dryEndAt ? Math.max(0, dryEndAt - now()) : CFG.dryMin * 60000, s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+
 function checkPending() { const t = now(), a = pending.active, l = pending.light, g = pending.target, newer = p => S.repFrom > p.sentAt, grace = p => { if (p.graced || (S.lastOk && t - S.lastOk <= 10000 && newer(p))) return false; p.graced = true; p.until = t + CFG.graceMs; schedulePoll(0); return true; };
-  if (a && a.want) { if (S.rep.active === true && newer(a)) { delete pending.active; S.phase = "idle"; S.active = true; hold.active = 0; pulse = 1; S.lastRem = S.remaining || 60; hist = []; lateStartRiskUntil = 0; log("start confirmed"); }
+  if (a && a.want) { if (S.rep.active === true && newer(a)) { delete pending.active; S.phase = "idle"; S.active = true; hold.active = 0; pulse = 1; S.lastRem = S.remaining || 60; hist = []; lateStartRiskUntil = 0; log("start confirmed"); if (dry) { S.onTime = dry.on; dry = null; log("dry-out running"); } }
     else if (t > a.until) { if (grace(a)) return; log("start NOT accepted by the sauna"); lateStartRiskUntil = t + 90000;      /* never leave a start request hanging in the cloud */
       failStart("The sauna didn't start", S.door ? "The sauna door is open. Close it and try again." : "1. Close the sauna door fully.  2. On the wall controller, press and hold the heater button for 3 seconds, until the display shows “rc on”.  3. Come back and hold power here again."); forceStop("withdraw unconfirmed start"); return; }
     else if (t > a.resendAt && a.tries < 2 && !S.door && S.online && S.deviceOk) { a.tries++; a.resendAt = t + CFG.startResendMs; sendStart("start retry", startGen); } }
-  if (a && !a.want) { if (S.rep.active === false && newer(a)) { delete pending.active; S.phase = "idle"; hold.active = 0; S.active = false; log("stop confirmed"); }
-    else if (t > a.until) { if (grace(a)) return; delete pending.active; S.phase = "idle"; hold.active = 0; S.active = S.rep.active !== false; log("stop NOT confirmed"); if (!a.auto || S.rep.active === true) notify("The sauna may still be on", "It didn't confirm the stop. Turn it off at the wall panel.", 30000); }
+  if (a && !a.want) { if (S.rep.active === false && newer(a)) { delete pending.active; S.phase = "idle"; hold.active = 0; S.active = false; log("stop confirmed"); if (dry && dry.stage === "stopping") { dry.stage = "starting"; setTimeout(relaunch, 2500); } }
+    else if (t > a.until) { if (grace(a)) return; delete pending.active; S.phase = "idle"; hold.active = 0; S.active = S.rep.active !== false; log("stop NOT confirmed"); dry = null; if (!a.auto || S.rep.active === true) notify("The sauna may still be on", "It didn't confirm the stop. Turn it off at the wall panel.", 30000); }
     else if (t > a.resendAt && a.tries < 4) { a.tries++; a.resendAt = t + 8000; hold.active = t + CFG.holdMs; sendCmd({ active: 0 }, "stop retry"); } }
   if (l) { if (S.rep.light === l.want && newer(l)) { delete pending.light; } else if (t > l.until && !grace(l)) { delete pending.light; hold.light = 0; if (S.rep.light !== null) S.light = S.rep.light; notify("The light didn't change", "The sauna didn't confirm it."); } }
   if (g) { if (S.rep.target === g.want && newer(g)) { delete pending.target; } else if (t > g.until && !grace(g)) { delete pending.target; if (tgtBase === null) { hold.target = 0; if (S.rep.target !== null) S.target = S.rep.target; } notify("Temperature not changed", "The sauna kept its old setting."); } } }
@@ -593,36 +625,50 @@ const TK = makeTicks($("ticks"), 175, 192, NT);
 function lightTicks(arr, f) { const n = Math.round(clamp(f, 0, 1) * (arr.length - 1)); for (let i = 0; i < arr.length; i++) { const on = f > .01 && i <= n; if (arr[i]._on !== on) { arr[i]._on = on; arr[i].classList.toggle("on", on); } } }
 const clockAt = min => new Date(Date.now() + min * 60000).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 const hm = m => Math.floor(m / 60) + ":" + String(m % 60).padStart(2, "0");
-/* Ready-time estimate, learned from past sessions.
-   The anteroom sits near the same temperature every time, so climbing from one degree to the next takes about
-   the same time each session, slower near the top as the benches and walls soak up heat. We keep, for every
-   whole °C, the minutes it took to climb to the next one (a running mean that keeps following the newest
-   sessions), and add up the steps still ahead. Steps never seen yet fall back to this session's live rate. */
-const LEARN_N = 8;          // the newest session always counts for at least 1/8, so the curve tracks seasons
-const MAX_STEP_MIN = 15;    // a slower step means missing data (offline, door open), not heating: don't learn it
+/* Ready-time estimate. It teaches itself from every session this panel sees; nothing to send or upload.
+   The room starts near the same temperature every time, so each whole °C takes about the same time to climb.
+   1. For every °C, a running mean of the minutes it took to reach the next one, from cold starts only
+      (a warm room climbs faster and would skew it).
+   2. Each session makes one guess early on and checks it when the sauna is ready. A running mean of real/guess,
+      kept apart for cold and warm starts, scales every later guess, so a steady error corrects itself.
+   Steps never seen yet fall back to this session's live rate. */
+const LEARN_N = 8;          // the newest session always counts for at least 1/8, so the model follows the seasons
+const MAX_STEP_MIN = 30;    // a slower step means missing data, not heating: don't learn it
 let climb = null;           // this session's last whole-degree crossing: { c, t }; t is null until the first crossing
+const fixFor = cold => ((store.get("fix", {})[cold ? "cold" : "warm"]) || [1])[0];
 function learnClimb() {
-  if (!S.active || S.temp == null || isReady() || api instanceof MockHarvia) { climb = null; return; }
+  const g = store.get("guess", null);
+  if (!S.active || S.temp == null || isDrying() || dry || api instanceof MockHarvia) { climb = null; if (!S.active && S.lastOk && g && !g.done) { g.done = true; store.set("guess", g); } return; }
+  if (now() - S.lastOk > 90000) { climb = null; if (g && !g.bad) { g.bad = true; store.set("guess", g); } return; }   // lost the sauna for a while: times across the gap mean nothing
+  if (g && g.at && !g.done && S.temp >= S.target - 1.5) {   // ready: check this session's guess
+    const real = (wall() - g.at) / 60000, ratio = real / g.raw; g.done = true; g.miss = Math.round(real - g.raw * g.fix);
+    if (!g.bad && ratio > .33 && ratio < 3) { const fs = store.get("fix", {}), k = g.cold ? "cold" : "warm", [f, n] = fs[k] || [1, 0], w = Math.min(n + 1, LEARN_N); fs[k] = [f + (ratio - f) / w, w]; store.set("fix", fs); }
+    store.set("guess", g); log("ready in " + Math.round(real) + " min, guessed " + Math.round(g.raw * g.fix)); }
+  if (isReady()) { climb = null; return; }
+  if (g && !g.at && !g.done && !g.bad) { const raw = minutesToReady(S.temp, S.target, null);   // the guess: learned steps only, with real heating still ahead
+    if (raw !== null && raw >= 10) { g.at = wall(); g.raw = raw; g.fix = fixFor(g.cold); store.set("guess", g); } }
   const c = Math.floor(S.temp), t = now();
   if (!climb || c < climb.c) { climb = { c, t: null }; return; }              // start, or a dip: wait for a clean crossing
   if (c === climb.c) return;
   const per = (t - climb.t) / 60000 / (c - climb.c);                            // minutes per °C, split over every step crossed
-  if (climb.t !== null && per <= MAX_STEP_MIN) {
+  if (climb.t !== null && per <= MAX_STEP_MIN && g && g.cold) {
     const steps = store.get("climb", {});
     for (let k = climb.c; k < c; k++) { const [m, n] = steps[k] || [0, 0], w = Math.min(n + 1, LEARN_N); steps[k] = [m + (per - m) / w, w]; }
     store.set("climb", steps);
   }
   climb = { c, t };
 }
+function readyDiag() { const fs = store.get("fix", {}), g = store.get("guess", null), f = k => fs[k] ? "x" + fs[k][0].toFixed(2) + " (" + fs[k][1] + ")" : "-";
+  return "ready model: " + Object.keys(store.get("climb", {})).length + " steps   cold " + f("cold") + "   warm " + f("warm") + "   last miss " + (g && g.miss != null ? (g.miss > 0 ? "+" : "") + g.miss + " min" : "-"); }
 function liveRate() {   // °C per minute over the last 12 min of this session, once there are 2 min of data
   const t = now(); if (!hist.length || t - hist[hist.length - 1][0] > 20000) hist.push([t, S.temp]); hist = hist.filter(h => h[0] > t - 12 * 60000);
   const [t0, c0] = hist[0], min = (t - t0) / 60000; return min < 2 || S.temp - c0 < .8 ? null : (S.temp - c0) / min; }
 function minutesToReady(from, target, rate) {   // null when some step ahead is neither learned nor covered by a live rate
   const steps = store.get("climb", {}), goal = target - 1.5; let m = 0;
-  for (let x = from; x < goal; ) { const k = Math.floor(x), nx = Math.min(k + 1, goal), per = steps[k] ? steps[k][0] : rate ? 1 / rate : null;
+  for (let x = from; x < goal; ) { const k = Math.floor(x), nx = Math.min(k + 1, goal), near = steps[k] || steps[k - 1] || steps[k + 1], per = near ? near[0] : rate ? 1 / rate : null;   // the first and last step of a climb are never crossed whole, so borrow a neighbour
     if (per === null) return null; m += (nx - x) * per; x = nx; }
   return m; }
-function eta() { if (!S.active || S.temp == null || S.temp >= S.target - 1.5) return null; const m = minutesToReady(S.temp, S.target, liveRate()); return m === null ? null : clamp(Math.round(m), 1, 180); }
+function eta() { if (!S.active || S.temp == null || S.temp >= S.target - 1.5) return null; const m = minutesToReady(S.temp, S.target, liveRate()), g = store.get("guess", null); return m === null ? null : clamp(Math.round(m * fixFor(g ? g.cold : S.temp < CFG.coldC)), 1, 180); }
 function isReady() { return S.active && S.temp != null && (S.temp >= S.target - 1.5 || S.atTemp); }
 let lastTgtShown = null, noticeTimer = 0;
 function notify(title, body, ms) { $("noticeT").textContent = title; $("noticeB").textContent = body || ""; $("notice").classList.add("show"); clearTimeout(noticeTimer); noticeTimer = ms >= 30000 ? 0 : setTimeout(() => $("notice").classList.remove("show"), ms || 9000); wake(); }
@@ -632,15 +678,17 @@ function render() { try { renderView(); } catch (e) { viewErr(e); } }
 function renderView() { const u = useF ? "°F" : "°C", ready = isReady(), rem = Math.ceil(S.remaining), e = eta(), tv = dispT(S.target);
   $("name").textContent = "The Goose Sauna"; $("unit").textContent = $("tUnit").textContent = u; $("now").textContent = S.temp == null ? "--" : disp(S.temp);
   if (lastTgtShown != null && lastTgtShown !== tv && !$("knob").classList.contains("drag")) { const w = $("tWrap"); w.style.setProperty("--dy", (tv > lastTgtShown ? 1 : -1) * 22 + "%"); w.classList.remove("bump"); void w.offsetWidth; w.classList.add("bump"); } lastTgtShown = tv; $("tVal").textContent = tv;
-  $("tUp").disabled = S.target >= CFG.maxC; $("tDown").disabled = S.target <= CFG.minC;
+  $("tUp").disabled = S.target >= CFG.maxC || isDrying(); $("tDown").disabled = S.target <= CFG.minC || isDrying();
   const fresh = S.lastOk && (now() - S.lastOk < 100000 || document.hidden), link = S.online && fresh && S.deviceOk;
   let st; if (!S.lastOk) st = S.online ? "Connecting…" : "Can't reach the sauna · use the wall controller"; else if (!S.online || !fresh) st = "Can't reach the sauna · use the wall controller"; else if (!S.deviceOk) st = "The sauna is offline · use the wall controller";
-    else if (holding) st = "Keep holding…"; else if (S.phase === "starting") st = now() - S.startedAt > 20000 ? "Still starting…" : "Starting…"; else if (S.phase === "stopping") st = "Stopping…";
+    else if (holding) st = "Keep holding…"; else if (dry) st = "Starting dry-out"; else if (isDrying()) st = "Drying Sauna Now"; else if (S.phase === "starting") st = now() - S.startedAt > 20000 ? "Still starting…" : "Starting…"; else if (S.phase === "stopping") st = "Stopping…";
     else if (S.active) st = ready ? "Ready" : e ? "Heating · ready " + clockAt(e) : "Heating";   /* ready time shows once ~2 min of heating data exists */
     else if (S.failNote && now() - (S.failAt || 0) < 15 * 60000) st = S.failNote + " · hold to try again";
     else st = "Off";
-  $("state").textContent = st; document.body.classList.toggle("off", !(S.active || S.phase === "starting")); document.body.classList.toggle("stale", !link && !!S.lastOk); document.body.classList.toggle("nolink", !link && !S.active);
-  $("hint").textContent = S.phase === "starting" ? "Starting · tap to cancel" : S.phase !== "idle" ? "Stopping…" : S.active ? "Turn off" : !link ? "\u00a0" : "Hold to start";
+  const se = $("state"); if (st === "Starting dry-out") { if (!se.querySelector(".dots")) se.innerHTML = st + '<span class="dots"><i>.</i><i>.</i><i>.</i></span>'; } else se.textContent = st; document.body.classList.toggle("off", !(S.active || S.phase === "starting" || dry));
+  if (isDrying() && S.lastOk) { const want = S.lastOk + (S.remaining - (CFG.dryOnTime - CFG.dryMin)) * 60000; if (!dryEndAt || Math.abs(want - dryEndAt) > 70000) dryEndAt = want; }   // the heater counts whole minutes; the panel ticks seconds between them
+  document.body.classList.toggle("drying", isDrying() || !!dry); $("slide").classList.toggle("dryk", isDrying()); document.body.classList.toggle("stale", !link && !!S.lastOk); document.body.classList.toggle("nolink", !link && !S.active);
+  $("hint").textContent = dry ? "One moment" : S.phase === "starting" ? "Starting · tap to cancel" : S.phase !== "idle" ? "Stopping…" : isDrying() ? "Tap to turn off now" : S.active ? "Hold to turn off" : !link ? "\u00a0" : "Hold to start";
   $("prog").setAttribute("d", arc(S.temp == null ? 0 : frac(S.temp))); $("prog").style.opacity = (S.temp == null || frac(S.temp) < .03) ? 0 : S.active ? .9 : .35;
   $("power").classList.toggle("lit", S.active && S.phase === "idle"); $("power").classList.toggle("busy", S.phase !== "idle"); $("slide").classList.toggle("on", S.active && S.phase === "idle"); $("slide").classList.toggle("busy", S.phase !== "idle"); $("slide").classList.toggle("off", !link && !S.active);
   renderExtras(ready, rem, e, link);
@@ -652,9 +700,9 @@ function renderExtras(ready, rem, e, link) {
   lightTicks(TK, S.temp == null ? 0 : frac(S.temp));
   learnClimb();
   const s1 = $("st1"), s2 = $("st2"), stats = $("stats");
-  if (S.active) { s2.classList.remove("hidden"); $("s2V").textContent = rem > 0 ? hm(rem) : "--";
-    if (ready) s1.classList.add("hidden"); else { $("s1L").textContent = "Ready at"; $("s1V").textContent = e ? clockAt(e) : "--"; s1.classList.remove("hidden"); } stats.style.opacity = 1; }
-  else { s2.classList.add("hidden"); const pre = S.temp == null ? null : minutesToReady(S.temp, S.target, null);   // only once the whole climb has been learned
+  if (S.active) { s2.classList.remove("hidden"); $("s2V").textContent = isDrying() ? dryLeft() : rem > 0 ? hm(rem) : "--";
+    if (ready || isDrying()) s1.classList.add("hidden"); else { $("s1L").textContent = "Ready at"; $("s1V").textContent = e ? clockAt(e) : "--"; s1.classList.remove("hidden"); } stats.style.opacity = 1; }
+  else { s2.classList.add("hidden"); const pre = S.temp == null ? null : minutesToReady(S.temp, S.target, null) * fixFor(S.temp < CFG.coldC);   // only once the whole climb has been learned
     if (link && pre !== null && pre >= 1) { $("s1L").textContent = "Start now, ready at"; $("s1V").textContent = clockAt(Math.round(pre)); s1.classList.remove("hidden"); stats.style.opacity = .8; } else { s1.classList.add("hidden"); stats.style.opacity = 0; } }
   }
 
@@ -664,18 +712,19 @@ let holding = false;
 function tap(el, fn) { let last = 0; el.addEventListener("click", ev => { const t = now(); if (t - last < 90) return; last = t; fn(ev); }); }   // ignore double-fires from wet fingers
 
 tap($("noticeX"), () => { clearTimeout(noticeTimer); $("notice").classList.remove("show"); });
+setInterval(() => { if (isDrying()) $("s2V").textContent = dryLeft(); }, 1000);   // the dry-out countdown ticks every second
 tap($("tUp"), () => nudge(1)); tap($("tDown"), () => nudge(-1));
 (function () { const sl = $("slide"), b = $("power"); let pid = null, t0 = 0, x0 = 0, y0 = 0, raf = 0, fired = false;   // hold to start: press the power button and keep holding until the ring fills; moving or lifting early cancels, so a wipe can't start it
-  const HOLD = Math.max(1200, CFG.slideMinMs), setK = v => sl.style.setProperty("--k", v);
+  const HOLD = Math.max(1200, CFG.slideMinMs), OFF_HOLD = Math.round(HOLD * .65), need = () => S.active ? OFF_HOLD : HOLD, setK = v => sl.style.setProperty("--k", v);
   sl.addEventListener("pointerdown", () => { if (pid === null) fired = false; });
   const end = () => { pid = null; holding = false; cancelAnimationFrame(raf); sl.classList.remove("press"); setK(0); render(); }; cancelHold = () => { if (pid !== null) end(); };
-  const step = () => { if (pid === null) return; const k = clamp((performance.now() - t0) / HOLD, 0, 1); setK(k); if (k >= 1) { end(); if (S.signedIn && S.phase === "idle" && !S.active) { fired = true; start(); } return; } raf = requestAnimationFrame(step); };
-  b.addEventListener("pointerdown", ev => { fired = false; if (!S.signedIn || S.phase !== "idle" || S.active || pid !== null) return; pid = ev.pointerId; try { b.setPointerCapture(pid); } catch (e) {} t0 = performance.now(); x0 = ev.clientX; y0 = ev.clientY; holding = true; sl.classList.add("press"); render(); raf = requestAnimationFrame(step); });
+  const step = () => { if (pid === null) return; const k = clamp((performance.now() - t0) / need(), 0, 1); setK(k); if (k >= 1) { end(); if (S.signedIn && S.phase === "idle") { fired = true; if (S.active) endSession(); else start(); } return; } raf = requestAnimationFrame(step); };
+  b.addEventListener("pointerdown", ev => { fired = false; if (!S.signedIn || S.phase !== "idle" || isDrying() || pid !== null) return; pid = ev.pointerId; try { b.setPointerCapture(pid); } catch (e) {} t0 = performance.now(); x0 = ev.clientX; y0 = ev.clientY; holding = true; sl.classList.add("press"); render(); raf = requestAnimationFrame(step); });
   b.addEventListener("pointermove", ev => { if (ev.pointerId !== pid) return; if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 28) end(); });
-  b.addEventListener("pointerup", ev => { if (ev.pointerId !== pid) return; const k = (performance.now() - t0) / HOLD; end();
-    if (S.phase === "idle" && !S.active && S.signedIn && k > .12) { sl.classList.remove("nudge"); void sl.offsetWidth; sl.classList.add("nudge"); notify("Hold to start", "Keep your finger on the power button until the ring fills."); } });
+  b.addEventListener("pointerup", ev => { if (ev.pointerId !== pid) return; const k = (performance.now() - t0) / need(); end();
+    if (S.phase === "idle" && S.signedIn && k > .12) { sl.classList.remove("nudge"); void sl.offsetWidth; sl.classList.add("nudge"); notify(S.active ? "Hold to turn off" : "Hold to start", "Keep your finger on the power button until the ring fills."); } });
   ["pointercancel", "lostpointercapture"].forEach(e => b.addEventListener(e, () => pid !== null && end())); b.addEventListener("contextmenu", ev => ev.preventDefault());
-  tap(sl, () => { if (!S.signedIn || fired) return; if (S.phase === "starting" || (S.active && S.phase === "idle")) stop(); }); })();
+  tap(sl, () => { if (!S.signedIn || fired) return; if (S.phase === "starting" || isDrying()) { dry = null; stop(); } }); })();
 
 (function () { const hero = $("hero"); let drag = false; const at = ev => { const r = hero.getBoundingClientRect(), x = ev.clientX - r.left - r.width / 2, y = ev.clientY - r.top - r.height / 2; let d = Math.atan2(y, x) * 180 / Math.PI; if (d < 0) d += 360; let rel = d - A0; if (rel < 0) rel += 360; return { dist: Math.hypot(x, y) / (r.width / 2), rel }; };
   const move = ev => { const p = at(ev); if (p.rel > SW + 30) return; dialFrac = clamp(p.rel / SW, 0, 1); setTarget(LO + clamp(p.rel / SW, 0, 1) * (CFG.maxC - LO)); };
@@ -718,7 +767,7 @@ tap($("setWidget"), () => { const k = widgetKey(), done = () => notify("Widget k
   else k.then(t => navigator.clipboard.writeText(t)).then(done, fail); });
 tap($("setDiag"), () => { const d = $("diag"); d.classList.toggle("hidden"); const f = fullyApi();
   d.textContent = ["version " + VERSION + "   up " + Math.round((now() - bootAt) / 60000) + " min", "mode " + (api instanceof MockHarvia ? "mock" : "live") + "   storage " + (store.ok ? "ok" : "UNAVAILABLE") + "   kiosk " + (f ? "fully" : "no"),
-    "online " + S.online + "   device ok " + S.deviceOk + "   last ok " + (S.lastOk ? Math.round((now() - S.lastOk) / 1000) + "s ago" : "never"), "signed in " + Math.round((wall() - store.get("loginAt", wall())) / 864e5) + " days ago", "gpu scale " + quality.scale.toFixed(2) + "   frame " + quality.avg.toFixed(1) + " ms", f ? "battery " + fullyCall("getBatteryLevel") + "%  plugged " + fullyCall("isPlugged") : "", "vp " + innerWidth + "x" + innerHeight + "  dpr " + devicePixelRatio + "  canvas " + cv.width + "x" + cv.height, rawDiag, (navigator.userAgent.match(/Chrome\/[\d.]+/) || [""])[0], "", ...LOG.slice(-60).reverse()].join("\n"); });
+    "online " + S.online + "   device ok " + S.deviceOk + "   last ok " + (S.lastOk ? Math.round((now() - S.lastOk) / 1000) + "s ago" : "never"), "signed in " + Math.round((wall() - store.get("loginAt", wall())) / 864e5) + " days ago", "gpu scale " + quality.scale.toFixed(2) + "   frame " + quality.avg.toFixed(1) + " ms", f ? "battery " + fullyCall("getBatteryLevel") + "%  plugged " + fullyCall("isPlugged") : "", "vp " + innerWidth + "x" + innerHeight + "  dpr " + devicePixelRatio + "  canvas " + cv.width + "x" + cv.height, rawDiag, readyDiag(), (navigator.userAgent.match(/Chrome\/[\d.]+/) || [""])[0], "", ...LOG.slice(-60).reverse()].join("\n"); });
 
 /* =====================================================  LOGIN FLOW  ===================================================== */
 let reauthT = 0;
@@ -774,7 +823,7 @@ float gfbm(vec2 p){ float a = .5, s = 0.; for (int i = 0; i < 5; i++){ s += a * 
 float stars(vec2 u, float sc, float thr, float sz, float t){ vec2 g = u * sc, i = floor(g), f = fract(g); float h = h21(i); if (h < thr) return 0.;
   vec2 o = vec2(h21(i + 17.1), h21(i + 31.7)) * .7 + .15; float d = length(f - o), b = (h - thr) / (1. - thr);
   return exp(-d * d / (sz * sz)) * (.35 + .65 * b) * (.8 + .2 * sin(t * (1. + 3. * h) + h * 60.)); }
-uniform sampler2D uTex, uCold, uBg; uniform float uFlow, uTrail, uBgA;
+uniform sampler2D uTex, uCold, uBg; uniform float uFlow, uTrail, uBgA, uDry;
 vec2 warp(vec2 uv, float t, float amp){ vec2 q = uv * 3.2; return uv + amp * vec2(gn(q + vec2(t * .9, t * .4)) + .5 * gn(q * 2.1 - vec2(t * .6, -t * .7)), gn(q + vec2(5.2 - t * .5, 1.3 + t * .8)) + .5 * gn(q * 2.1 + vec2(3.7 + t * .7, t * .5))); }
 /* v15 orb: off = the cold reference photo with its stars turning slowly · on = the hot reference photo with its marbling flowing
    (only the fine detail moves; the photo's light and shadow stay where they are) · off<->on = a soft radial bloom
@@ -819,6 +868,7 @@ void main(){
   /* soft glow around the orb, dimmed, breathing gently */
   float e = max(r - 1., 0.);
   col += tint * exp(-e * 1.6) * (.02 + .07 * uOn * (.5 + .5 * hh)) * (.85 + .15 * breathe);
+  { float lit = .35 + .65 * smoothstep(-.6, 1., cos(.55 - uT * 6.2832 / 8.2)); col += vec3(1., .10, .07) * (exp(-e * 7.) * .35 + exp(-e * 2.2) * .10) * lit * uDry; }   /* the dry-out sphere's red halo follows its light */
 
   /* inside the orb */
   if (r < 1. + aa) {
@@ -849,6 +899,12 @@ void main(){
     float rev = uOn * 1.45, dn = gfbm(p * 2.2 + uT * .03) * .22;
     float la = (1. - smoothstep(rev - .32, rev - .02, r + dn)) * smoothstep(0., .06, uOn);
     vec3 inside = mix(cold, lava, la);
+    /* dry-out orb (Mathew's reference clip): a red sphere whose light circles it top -> front -> bottom -> behind.
+       His clip loops in 5.8 s; this is 30% slower (8.2 s). Fine film grain like the clip */
+    { float a = .55 - uT * 6.2832 / 8.2; vec3 L = vec3(0., sin(a), cos(a)), n = vec3(p.x, p.y, sqrt(max(1. - r * r, 0.)));
+      vec3 sph = vec3(1., .08, .06) * pow(smoothstep(-.3, 1., dot(n, L)), 1.3) * 1.1 + vec3(.20, .065, .065) * (.55 + .45 * n.z);
+      sph += (fract(sin(dot(floor(gl_FragCoord.xy / 1.5) + floor(uT * 24.), vec2(12.9898, 78.233))) * 43758.5453) - .5) * .05;
+      inside = mix(inside, max(sph, 0.), uDry); }
     inside += vec3(1., .55, .25) * exp(-pow((r + dn - (rev - .17)) / .07, 2.)) * sin(3.1416 * clamp(uOn, 0., 1.)) * .5;
     inside *= 1. + uPulse * .3;
     col = mix(inside, col, smoothstep(1. - aa, 1. + aa, r));
@@ -858,7 +914,8 @@ void main(){
   { float dr = r - 1.;
     vec3 rc = mix(vec3(.55, .78, 1.), vec3(1., .62, .34), smoothstep(.0, .3, w)), core = vec3(1., .96, .90);
     float ringI = mix(.12, mix(.65, .9, hh), uOn) * (1. + uPulse * .5) * (.9 + .1 * breathe);
-    col += core * exp(-dr * dr / (.0042 * .0042)) * .85 * ringI;
+    rc = mix(rc, vec3(1., .22, .14), uDry);
+    col += core * exp(-dr * dr / (.0042 * .0042)) * .85 * ringI * (1. - .85 * uDry);
     col += rc * (exp(-abs(dr) / .016) * .45 + exp(-abs(dr) / .06) * .22) * ringI;
     col += tint * exp(-max(dr, 0.) / .28) * .14 * ringI * step(0., dr);
   }
@@ -870,7 +927,7 @@ void main(){
       along *= step(0., sA) * smoothstep(0., .12, abs(span));
       float d = r - 1.1125;
       float g = exp(-d * d / (.004 * .004)) * 1.1 + exp(-abs(d) / .05) * .5 + exp(-abs(d) / .16) * .38 * step(d, 0.) + exp(-abs(d) / .03) * .22 * step(0., d);
-      col += mix(vec3(1., .56, .24), vec3(1., .95, .86), exp(-abs(d) / .018)) * g * along * uOn; } }
+      col += mix(vec3(1., .56, .24), vec3(1., .95, .86), exp(-abs(d) / .018)) * g * along * uOn * (1. - uDry); } }
 
   { float mx = max(col.r, max(col.g, col.b)); if (mx > 1.) col /= mx; }
   gl_FragColor = vec4(col, 1.);
@@ -883,7 +940,7 @@ function initGL() { try { gl = cv.getContext("webgl", { antialias: false, alpha:
     const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o) || "shader"); return o; };
     const pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, "attribute vec2 a; void main(){ gl_Position = vec4(a,0.,1.); }")); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FRAG)); gl.bindAttribLocation(pr, 0, "a"); gl.linkProgram(pr); mainPr = pr; if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error("link"); gl.useProgram(pr);
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); const a = gl.getAttribLocation(pr, "a"); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    ["uHill", "uRes", "uC", "uT", "uPh", "uHeat", "uOn", "uR", "uPulse", "uAdj", "uKnob", "uTex", "uFlow", "uCold", "uBg", "uTrail", "uBgA"].forEach(n => U[n] = gl.getUniformLocation(pr, n));
+    ["uHill", "uRes", "uC", "uT", "uPh", "uHeat", "uOn", "uR", "uPulse", "uAdj", "uKnob", "uTex", "uFlow", "uCold", "uBg", "uTrail", "uBgA", "uDry"].forEach(n => U[n] = gl.getUniformLocation(pr, n));
     const mkTex = (img, unit, mip) => { const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
       const upl = () => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); if (mip) gl.generateMipmap(gl.TEXTURE_2D);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mip ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); };
@@ -896,13 +953,13 @@ cv.addEventListener("webglcontextlost", ev => { ev.preventDefault(); glOk = fals
 cv.addEventListener("webglcontextrestored", () => { glOk = initGL(); if (glOk) app.style.background = ""; log("graphics context restored: " + glOk); });
 
 let phase = 0, adjAt = -1e9, bumpA = 0, bumpTi = -1, bumpLast = -1;
-let onLin = 0, heroKey = "", onS = 0, heatS = 0, last = performance.now(), kA = A0, kV = 0, dialFrac = null, frameNo = 0, T0 = performance.now();
+let dryS = 0, onLin = 0, heroKey = "", onS = 0, heatS = 0, last = performance.now(), kA = A0, kV = 0, dialFrac = null, frameNo = 0, T0 = performance.now();
 function frame(t) { requestAnimationFrame(frame); try { frameView(t); } catch (e) { viewErr(e); } }
 function frameView(t) { const b = document.body.classList; if (document.hidden || b.contains("asleep")) { last = t; T0 = t; flowT = 0; return; }
   frameNo++; const calm = b.contains("ambient") || (b.contains("off") && now() - lastTouch > 60000); if (calm && frameNo % 2) return;                     // 30 fps is plenty when nothing is happening; halves heat and power
   const dt = Math.min(.1, (t - last) / 1000); last = t; const amb = b.contains("ambient");
   const k = 1 - Math.exp(-dt * 2.2); cyN += (orbCy - cyN) * k; rN += (orbR - rN) * k;
-  const showOn = S.active || S.phase === "starting"; onLin = clamp(onLin + (showOn ? 1 : -1) * dt / 1.6, 0, 1); onS = onLin < .5 ? 4 * onLin * onLin * onLin : 1 - Math.pow(-2 * onLin + 2, 3) / 2;   /* ease-in-out, 1.6 s */ const rdy = isReady(), prog = S.temp == null ? 0 : (S.active && S.target > 25) ? (rdy ? 1 : clamp((S.temp - ROOM) / (S.target - ROOM), 0, 1) * .9) : frac(S.temp); heatS += (prog - heatS) * (1 - Math.exp(-dt * 2)); /* while running, colour means progress toward the target, so Ready always looks ready */
+  const showOn = S.active || S.phase === "starting" || !!dry; onLin = clamp(onLin + (showOn ? 1 : -1) * dt / 1.6, 0, 1); onS = onLin < .5 ? 4 * onLin * onLin * onLin : 1 - Math.pow(-2 * onLin + 2, 3) / 2;   /* ease-in-out, 1.6 s */ const rdy = isReady(), prog = S.temp == null ? 0 : (S.active && S.target > 25) ? (rdy ? 1 : clamp((S.temp - ROOM) / (S.target - ROOM), 0, 1) * .9) : frac(S.temp); heatS += (prog - heatS) * (1 - Math.exp(-dt * 2)); /* while running, colour means progress toward the target, so Ready always looks ready */
   pulse *= Math.exp(-dt * 1.7); phase += dt * (.31 + .5 * onS);   // ~40% livelier than 1.3.1 if (phase > 3600) phase -= 3600;
   { const g2 = A0 + SW * frac(S.target), m = 4; for (let i = 0; i < m; i++) { const h = dt / m; kV += ((g2 - kA) * 900 - kV * 60) * h; kA += kV * h; } if ($("knob").classList.contains("drag") && dialFrac != null) { kA = A0 + SW * dialFrac; kV = 0; } const [kx, ky] = pol(kA, RR); $("knob").setAttribute("transform", `translate(${kx} ${ky})`);
     const touching = $("knob").classList.contains("drag") || $("tUp").matches(":active") || $("tDown").matches(":active"); if (touching) adjAt = t; bumpA += ((touching || t < adjAt ? 1 : 0) - bumpA) * (1 - Math.exp(-dt * 4.5));   // eases into the long mode on touch, back to standard after
@@ -913,7 +970,7 @@ function frameView(t) { const b = document.body.classList; if (document.hidden |
   const R = rN * W, box = R * 400 / 160; const hk = box.toFixed(1) + "|" + (cyN * H).toFixed(1) + "|" + W; if (hk !== heroKey) { heroKey = hk; hero.style.width = hero.style.height = box + "px"; hero.style.left = (W - box) / 2 + "px"; hero.style.top = (cyN * H - box / 2) + "px"; }
   { const w = onS * (.3 + .7 * heatS), G = [[0, 61, 131, 255], [.3, 255, 92, 26], [.6, 255, 100, 30], [1, 255, 118, 40]]; let i = 0; while (i < 2 && w > G[i + 1][0]) i++; const f = clamp((w - G[i][0]) / (G[i + 1][0] - G[i][0]), 0, 1), ch = j => Math.round(G[i][j] + (G[i + 1][j] - G[i][j]) * f); document.documentElement.style.setProperty("--glow", `rgb(${ch(1)},${ch(2)},${ch(3)})`); }
   if (glOk) { const t1 = performance.now(), sx = cv.width / W; gl.viewport(0, 0, cv.width, cv.height); gl.uniform2f(U.uRes, cv.width, cv.height); gl.uniform2f(U.uC, cv.width / 2, cv.height - cyN * H * sx); gl.uniform1f(U.uR, R * sx);
-    gl.uniform1f(U.uT, ((t - T0) / 1000) % 86400); gl.uniform1f(U.uPh, phase); gl.uniform1f(U.uHeat, onS * (.3 + .7 * heatS)); gl.uniform1f(U.uOn, onS); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uAdj, bumpA); gl.uniform1f(U.uKnob, kA * Math.PI / 180); flowT = (flowT + dt * 1.25 * (.125 + .03 * heatS)) % 86400;   /* 1.4.5: whole lava speed range 25% faster */ gl.uniform1f(U.uFlow, flowT); trailA = showOn ? trailA + (kA - trailA) * (1 - Math.exp(-dt * 16)) : kA; gl.uniform1f(U.uTrail, trailA * Math.PI / 180); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.uniform1f(U.uT, ((t - T0) / 1000) % 86400); gl.uniform1f(U.uPh, phase); gl.uniform1f(U.uHeat, onS * (.3 + .7 * heatS)); gl.uniform1f(U.uOn, onS); dryS = clamp(dryS + ((isDrying() || dry) ? 1 : -1) * dt / 1.2, 0, 1); gl.uniform1f(U.uDry, dryS * dryS * (3 - 2 * dryS)); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uAdj, bumpA); gl.uniform1f(U.uKnob, kA * Math.PI / 180); flowT = (flowT + dt * 1.25 * (.125 + .03 * heatS)) % 86400;   /* 1.4.5: whole lava speed range 25% faster */ gl.uniform1f(U.uFlow, flowT); trailA = showOn ? trailA + (kA - trailA) * (1 - Math.exp(-dt * 16)) : kA; gl.uniform1f(U.uTrail, trailA * Math.PI / 180); gl.drawArrays(gl.TRIANGLES, 0, 3);
     /* adaptive quality: if frames are slow, render the background at a lower resolution; creep back up when there is headroom */
     quality.acc += dt * 1000 / (calm ? 2 : 1); if (++quality.n >= 60) { quality.avg = quality.acc / quality.n; quality.n = 0; quality.acc = 0; const since = t1 - quality.lastChange;
       if (false /* auto quality off: full resolution until real use shows a problem */ && quality.avg > 24 && quality.scale > .3 && since > 4000) { quality.scale = Math.max(.3, quality.scale - .08); quality.lastChange = t1; layout(); log("gpu: lowered detail to " + quality.scale.toFixed(2)); }
@@ -932,8 +989,7 @@ let errBurst = []; addEventListener("error", ev => { log("error: " + (ev.message
 addEventListener("unhandledrejection", ev => log("unhandled: " + ((ev.reason && ev.reason.message) || ev.reason)));
 addEventListener("online", () => { failCount = 0; schedulePoll(500); }); addEventListener("offline", () => { S.online = false; render(); });
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { last = performance.now(); schedulePoll(300); } });
-function tick() { const d = new Date(), txt = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); $("clock").textContent = txt; $("sleepClock").textContent = txt;
-  if (document.body.classList.contains("asleep")) $("sleepFace").style.transform = `translate(${Math.round(Math.sin(d.getMinutes() / 60 * 6.283) * 140)}px, ${Math.round(Math.cos(d.getMinutes() / 60 * 6.283) * 300)}px)`;   // drift slowly so nothing sits in one spot for hours
+function tick() { const d = new Date(), txt = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); $("clock").textContent = txt; const hm2 = txt.match(/^(\S+)\s*(.*)$/) || [0, txt, ""]; $("sleepClock").textContent = hm2[1]; $("sleepAmPm").textContent = hm2[2];
   if (S.signedIn) { const ref = S.lastOk || bootAt; if (now() - ref > 3 * 60000 && now() - lastPollAt > 90000) { polling = false; schedulePoll(0); }     // poll loop watchdog (respects the back-off, un-sticks a hung poll)
     if (now() - ref > 20 * 60000 && failCount >= 3 && navigator.onLine !== false) safeReload("no data for 20 min");
     const h = d.getHours() + d.getMinutes() / 60; if (h >= 3.5 && h < 4.5 && now() - bootAt > 6 * 3600000 && (!S.active || !S.deviceOk) && S.phase === "idle" && now() - lastTouch > 10 * 60000) safeReload("nightly");   // fresh start every night; also picks up a new version
