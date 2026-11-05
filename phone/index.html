@@ -253,6 +253,8 @@ body.off header .name { font-weight: 500 !important; color: #fff !important; }
 .dots i { font-style: normal; animation: dot 1.2s infinite both; } .dots i:nth-child(2) { animation-delay: .2s; } .dots i:nth-child(3) { animation-delay: .4s; }
 @keyframes dot { 0%, 80%, 100% { opacity: .15; } 40% { opacity: 1; } }
 body.drying #tUp, body.drying #tDown { opacity: 0 !important; pointer-events: none !important; transition: opacity .4s var(--out); }
+body.drying #hero .stepper #tWrap::before { content: "Max out sauna fan and open upper vent"; }
+body.drying #hero .stepper #tWrap span, body.drying #hero .stepper #tWrap small { display: none !important; }
 body.drying #ticks, body.drying #knob, body.drying #track, body.drying #prog { opacity: 0 !important; pointer-events: none !important; transition: opacity .6s var(--out); }
 body.drying #slide.glass, body.drying #slide.glass.busy { left: calc(50% - var(--s)*4.5) !important; }   /* the key stays centred through the switch-over */
 body #slide.glass.dryk { animation: dryk .7s var(--spring); }
@@ -309,7 +311,7 @@ body #slide.glass.on { left: calc(var(--s)*45.5) !important; }
   body.off #slide.glass { left: calc(50% - var(--s)*6.5) !important; bottom: calc(env(safe-area-inset-bottom) + var(--s)*12.25) !important; }
   body #stats, body.off #stats { top: auto !important; bottom: calc(env(safe-area-inset-bottom) + var(--s)*30) !important; }
   #notice, .sheet .box { width: calc(100% - var(--s)*6); }
-  .now { font-size: calc(var(--s)*14); }   /* the orb is smaller next to the text than on the tablet, so the temp shrinks to keep °F inside it */
+  .now { font-size: calc(var(--s)*9.8); }   /* the orb is smaller next to the text than on the tablet, so the temp shrinks to keep °F inside it */
 }
 </style>
 </head>
@@ -430,7 +432,7 @@ var r=function(e,t){return r=Object.setPrototypeOf||{__proto__:[]}instanceof Arr
 <script>
 "use strict";
 /* =====================================================  CONFIG  ===================================================== */
-const VERSION = "1.4.8";
+const VERSION = "1.4.9";
 const CFG = {
   minC: 40, maxC: 90,                 // US Xenio limit is 194°F / 90°C. The panel enforces this too.
   pollActiveMs: 10000,                // sauna on, or someone is using the panel
@@ -517,7 +519,7 @@ class Harvia {
 class MockHarvia {
   constructor(fast) { this.fast = fast; this.deviceId = "mock"; this.signed = fast || store.get("mockSigned", false); this.last = now();
     this.r = { displayName: fast ? "The Homebase Banya" : "Mock Sauna", active: 0, light: 0, targetTemp: 90, onTime: 60, tempUnit: 1, statusCodes: 0 }; this.t = { temperature: 21, humidity: 0, remainingTime: 0, heatOn: 0 };
-    window.MOCK = window.MOCK || { latency: fast ? 60 : 350, fail: "none", rejectStart: false, door: false, sessionMin: 60, ratePerSec: fast ? 40 : .08, deviceSilent: false, authDead: false }; }
+    window.MOCK = window.MOCK || { latency: fast ? 60 : 350, fail: "none", rejectStart: false, door: false, ratePerSec: fast ? 40 : .08, deviceSilent: false, authDead: false }; }
   async wait() { const M = window.MOCK; await new Promise(r => setTimeout(r, M.latency)); if (M.fail === "network") throw new AppError("net", "network"); if (M.fail === "http500") throw new AppError("net", "http 500"); if (M.fail === "api") throw new AppError("api", "mock api error"); if (M.authDead || M.fail === "auth") { this.signed = false; store.set("mockSigned", false); throw new AppError("auth", "Refresh Token has expired"); } }
   tick() { const M = window.MOCK, dt = (now() - this.last) / 1000; this.last = now(); const goal = this.r.active ? this.r.targetTemp : 21; const d = goal - this.t.temperature, step = M.ratePerSec * dt * (this.r.active ? 1 : .6);
     this.t.temperature = Math.abs(d) <= step ? goal : this.t.temperature + Math.sign(d) * step; this.t.heatOn = this.r.active && d > .5 ? 1 : 0;
@@ -528,8 +530,8 @@ class MockHarvia {
   logout() { this.signed = false; store.set("mockSigned", false); } async findDevice() { await this.wait(); }
   async state() { await this.wait(); this.tick(); return { reported: { ...this.r }, timestamp: window.MOCK.deviceSilent ? wall() - 3600000 : wall() }; }
   async telemetry() { await this.wait(); this.tick(); return { data: { ...this.t, temperature: Math.round(this.t.temperature * 10) / 10, remainingTime: Math.ceil(this.t.remainingTime) }, timestamp: window.MOCK.deviceSilent ? wall() - 3600000 : wall() }; }
-  async set(p) { await this.wait(); this.tick(); const M = window.MOCK; if ("active" in p) { if (p.active && (M.rejectStart || M.door)) { /* silently ignored, like the real panel */ } else { this.r.active = p.active ? 1 : 0; this.t.remainingTime = p.active ? M.sessionMin : 0; } }
-    if ("targetTemp" in p) this.r.targetTemp = clamp(p.targetTemp | 0, CFG.minC, CFG.maxC); if ("light" in p) this.r.light = p.light ? 1 : 0; if ("onTime" in p) { this.r.onTime = p.onTime; if (this.r.active) this.t.remainingTime = p.onTime; } return {}; }
+  async set(p) { await this.wait(); this.tick(); const M = window.MOCK; if ("active" in p) { if (p.active && (M.rejectStart || M.door)) { /* silently ignored, like the real panel */ } else { this.r.active = p.active ? 1 : 0; this.t.remainingTime = p.active ? this.r.onTime : 0; } }
+    if ("targetTemp" in p) this.r.targetTemp = clamp(p.targetTemp | 0, CFG.minC, CFG.maxC); if ("light" in p) this.r.light = p.light ? 1 : 0; if ("onTime" in p) this.r.onTime = p.onTime;   /* like the real Xenio: kept for the next start */ return {}; }
 }
 
 /* =====================================================  STATE + SYNC ENGINE  ===================================================== */
@@ -538,7 +540,7 @@ const S = { name: String(store.get("name", "Sauna") || "Sauna").slice(0, 40), ac
 let authFails = 0, cancelHold = () => {}, cancelDrag = () => {}, rawDiag = "";
 let lastPollAt = 0, cancelStartsBefore = 0, startGen = 0, startsInFlight = 0, lateStartRiskUntil = 0;
 let api = null, useF = store.get("unit", "F") === "F", pulse = 0, fastUntil = 0, polling = false, pollTimer = 0, failCount = 0, hist = [], wasReady = false, lastTouch = now(), bootAt = now();
-let dry = null, onTimeFixAt = 0, dryEndAt = 0;   // dry: the switch-over into a dry-out { t: target °C, on: onTime min, stage: "stopping" | "starting" }
+let dry = null, onTimeFixAt = 0;   // dry: the switch-over into a dry-out { t: target °C, on: onTime min, stage: "stopping" | "starting" }
 const isDrying = () => S.active && S.target === CFG.dryC && S.onTime === CFG.dryOnTime;   // works for a dry-out started from any panel
 const hold = {}, pending = {};   // hold[field] = our value wins until this time; pending[field] = { want, until, tries }
 const dispT = c => { if (!useF) return c; const f = c2f(c), g = Math.round(f / 5) * 5; return Math.abs(f - g) < .95 ? g : Math.round(f); };
@@ -568,7 +570,9 @@ function applyState(st, tl) { const r = st.reported || {}, d = tl.data || {}, wa
   if (!wasActive && S.active) { const g = store.get("guess", null); if (!g || g.done || wall() - (g.made || 0) > 8 * 3600000) store.set("guess", { cold: S.temp != null && S.temp < CFG.coldC, made: wall(), at: 0 }); hist = []; S.endedAt = 0; S.failNote = ""; S.lastRem = S.remaining || 60; if (!S.startedAt || now() - S.startedAt > 120000) S.startedAt = now(); }
   if (S.rep.active === true && now() < lateStartRiskUntil && !pending.active) { lateStartRiskUntil = 0; log("a start we had given up on arrived late: stopping again"); forceStop("re-stop", true); notify("The sauna turned on late", "An earlier start command arrived late, after you were told it failed. It has been told to stop. Hold power if you do want it on.", 30000); goFast(); }
   if (S.active && document.body.classList.contains("asleep")) wake();                                  // started from the phone or the wall: show it
-  if (isDrying() && S.phase === "idle" && S.remaining > 0 && S.remaining <= CFG.dryOnTime - CFG.dryMin && now() - S.startedAt > 120000) { log("dry-out done"); stop(); }
+  if (isDrying() && S.phase === "idle" && wall() >= dryEnd()) { log("dry-out done"); stop(); }
+  if (!isDrying() && !dry && store.get("dryStart", 0)) store.set("dryStart", 0);
+  if (dry && dry.stage === "prep" && !S.active && S.phase === "idle" && (now() > dry.until || (S.onTime === dry.on && now() > dry.until - 12000))) { dry.stage = "starting"; relaunch(); }   // the heater has the 60 min setting before it starts
   if (!S.active && !dry && S.phase === "idle" && S.onTime === CFG.dryOnTime && now() - onTimeFixAt > 60000) {   // after a dry-out: next session 4 hr again, target back to what it was
     onTimeFixAt = now(); const p = { onTime: CFG.sessionMin }, was = store.get("preDry", null); if (was && S.target === CFG.dryC) { p.targetTemp = was; S.target = was; hold.target = now() + CFG.holdMs; } sendCmd(p, "after dry-out"); }
   store.set("target", S.target); }
@@ -600,16 +604,19 @@ function stop() { if (!S.signedIn || S.phase === "stopping") return; const wasSt
    bake out of the wood (Trumpkin: hold 149°F+ at the benches after use). A tap on the power key ends it.
    The switch-over is: turn the heater off, then straight back on with new settings (the cloud only applies onTime at a start). */
 function endSession() { if (dry || isDrying() || S.phase !== "idle" || S.temp == null || S.temp < CFG.dryFromC) { dry = null; return stop(); }
-  store.set("preDry", S.target); dry = { t: CFG.dryC, on: CFG.dryOnTime, stage: "stopping" }; dryEndAt = 0; log("dry-out requested"); stop(); }
+  store.set("preDry", S.target); dry = { t: CFG.dryC, on: CFG.dryOnTime, stage: "stopping" }; log("dry-out requested"); stop(); }
 function relaunch() { if (!dry || dry.stage !== "starting" || S.active || S.phase !== "idle") return; S.target = dry.t; hold.target = now() + CFG.holdMs; start(); if (S.phase !== "starting") failStart(); }
-function dryLeft() { const ms = dryEndAt ? Math.max(0, dryEndAt - now()) : CFG.dryMin * 60000, s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+function dryEnd() { let ds = store.get("dryStart", 0);   // when this dry-out began; a panel that missed the start works it out from the heater's own 60 min clock
+  if (!ds || wall() - ds > 3 * 3600000) { ds = wall() - (S.remaining > 0 && S.remaining <= CFG.dryOnTime ? (CFG.dryOnTime - S.remaining) * 60000 : 0); store.set("dryStart", ds); }
+  return ds + CFG.dryMin * 60000; }
+function dryLeft() { const ms = isDrying() ? Math.max(0, dryEnd() - wall()) : CFG.dryMin * 60000, s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
 
 function checkPending() { const t = now(), a = pending.active, l = pending.light, g = pending.target, newer = p => S.repFrom > p.sentAt, grace = p => { if (p.graced || (S.lastOk && t - S.lastOk <= 10000 && newer(p))) return false; p.graced = true; p.until = t + CFG.graceMs; schedulePoll(0); return true; };
-  if (a && a.want) { if (S.rep.active === true && newer(a)) { delete pending.active; S.phase = "idle"; S.active = true; hold.active = 0; pulse = 1; S.lastRem = S.remaining || 60; hist = []; lateStartRiskUntil = 0; log("start confirmed"); if (dry) { S.onTime = dry.on; dry = null; log("dry-out running"); } }
+  if (a && a.want) { if (S.rep.active === true && newer(a)) { delete pending.active; S.phase = "idle"; S.active = true; hold.active = 0; pulse = 1; S.lastRem = S.remaining || 60; hist = []; lateStartRiskUntil = 0; log("start confirmed"); if (dry) { S.onTime = dry.on; dry = null; store.set("dryStart", wall()); log("dry-out running"); } }
     else if (t > a.until) { if (grace(a)) return; log("start NOT accepted by the sauna"); lateStartRiskUntil = t + 90000;      /* never leave a start request hanging in the cloud */
       failStart("The sauna didn't start", S.door ? "The sauna door is open. Close it and try again." : "1. Close the sauna door fully.  2. On the wall controller, press and hold the heater button for 3 seconds, until the display shows “rc on”.  3. Come back and hold power here again."); forceStop("withdraw unconfirmed start"); return; }
     else if (t > a.resendAt && a.tries < 2 && !S.door && S.online && S.deviceOk) { a.tries++; a.resendAt = t + CFG.startResendMs; sendStart("start retry", startGen); } }
-  if (a && !a.want) { if (S.rep.active === false && newer(a)) { delete pending.active; S.phase = "idle"; hold.active = 0; S.active = false; log("stop confirmed"); if (dry && dry.stage === "stopping") { dry.stage = "starting"; setTimeout(relaunch, 2500); } }
+  if (a && !a.want) { if (S.rep.active === false && newer(a)) { delete pending.active; S.phase = "idle"; hold.active = 0; S.active = false; log("stop confirmed"); if (dry && dry.stage === "stopping") { dry.stage = "prep"; dry.until = now() + 15000; sendCmd({ onTime: dry.on, targetTemp: dry.t }, "dry-out settings"); goFast(); } }
     else if (t > a.until) { if (grace(a)) return; delete pending.active; S.phase = "idle"; hold.active = 0; S.active = S.rep.active !== false; log("stop NOT confirmed"); dry = null; if (!a.auto || S.rep.active === true) notify("The sauna may still be on", "It didn't confirm the stop. Turn it off at the wall panel.", 30000); }
     else if (t > a.resendAt && a.tries < 4) { a.tries++; a.resendAt = t + 8000; hold.active = t + CFG.holdMs; sendCmd({ active: 0 }, "stop retry"); } }
   if (l) { if (S.rep.light === l.want && newer(l)) { delete pending.light; } else if (t > l.until && !grace(l)) { delete pending.light; hold.light = 0; if (S.rep.light !== null) S.light = S.rep.light; notify("The light didn't change", "The sauna didn't confirm it."); } }
@@ -686,7 +693,6 @@ function renderView() { const u = useF ? "°F" : "°C", ready = isReady(), rem =
     else if (S.failNote && now() - (S.failAt || 0) < 15 * 60000) st = S.failNote + " · hold to try again";
     else st = "Off";
   const se = $("state"); if (st === "Starting dry-out") { if (!se.querySelector(".dots")) se.innerHTML = st + '<span class="dots"><i>.</i><i>.</i><i>.</i></span>'; } else se.textContent = st; document.body.classList.toggle("off", !(S.active || S.phase === "starting" || dry));
-  if (isDrying() && S.lastOk) { const want = S.lastOk + (S.remaining - (CFG.dryOnTime - CFG.dryMin)) * 60000; if (!dryEndAt || Math.abs(want - dryEndAt) > 70000) dryEndAt = want; }   // the heater counts whole minutes; the panel ticks seconds between them
   document.body.classList.toggle("drying", isDrying() || !!dry); $("slide").classList.toggle("dryk", isDrying()); document.body.classList.toggle("stale", !link && !!S.lastOk); document.body.classList.toggle("nolink", !link && !S.active);
   $("hint").textContent = dry ? "One moment" : S.phase === "starting" ? "Starting · tap to cancel" : S.phase !== "idle" ? "Stopping…" : isDrying() ? "Tap to turn off now" : S.active ? "Hold to turn off" : !link ? "\u00a0" : "Hold to start";
   $("prog").setAttribute("d", arc(S.temp == null ? 0 : frac(S.temp))); $("prog").style.opacity = (S.temp == null || frac(S.temp) < .03) ? 0 : S.active ? .9 : .35;
@@ -868,7 +874,7 @@ void main(){
   /* soft glow around the orb, dimmed, breathing gently */
   float e = max(r - 1., 0.);
   col += tint * exp(-e * 1.6) * (.02 + .07 * uOn * (.5 + .5 * hh)) * (.85 + .15 * breathe);
-  { float lit = .35 + .65 * smoothstep(-.6, 1., cos(.55 - uT * 6.2832 / 8.2)); col += vec3(1., .10, .07) * (exp(-e * 7.) * .35 + exp(-e * 2.2) * .10) * lit * uDry; }   /* the dry-out sphere's red halo follows its light */
+  { float lit = .35 + .65 * smoothstep(-.6, 1., cos(.55 - uT * 6.2832 / 16.4)); col += vec3(1., .10, .07) * (exp(-e * 7.) * .35 + exp(-e * 2.2) * .10) * lit * uDry; }   /* the dry-out sphere's red halo follows its light */
 
   /* inside the orb */
   if (r < 1. + aa) {
@@ -900,8 +906,8 @@ void main(){
     float la = (1. - smoothstep(rev - .32, rev - .02, r + dn)) * smoothstep(0., .06, uOn);
     vec3 inside = mix(cold, lava, la);
     /* dry-out orb (Mathew's reference clip): a red sphere whose light circles it top -> front -> bottom -> behind.
-       His clip loops in 5.8 s; this is 30% slower (8.2 s). Fine film grain like the clip */
-    { float a = .55 - uT * 6.2832 / 8.2; vec3 L = vec3(0., sin(a), cos(a)), n = vec3(p.x, p.y, sqrt(max(1. - r * r, 0.)));
+       His clip loops in 5.8 s; this runs at 35% of its speed (16.4 s): slowed 30%, then another 50%. Fine film grain like the clip */
+    { float a = .55 - uT * 6.2832 / 16.4; vec3 L = vec3(0., sin(a), cos(a)), n = vec3(p.x, p.y, sqrt(max(1. - r * r, 0.)));
       vec3 sph = vec3(1., .08, .06) * pow(smoothstep(-.3, 1., dot(n, L)), 1.3) * 1.1 + vec3(.20, .065, .065) * (.55 + .45 * n.z);
       sph += (fract(sin(dot(floor(gl_FragCoord.xy / 1.5) + floor(uT * 24.), vec2(12.9898, 78.233))) * 43758.5453) - .5) * .05;
       inside = mix(inside, max(sph, 0.), uDry); }
