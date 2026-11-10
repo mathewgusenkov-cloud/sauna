@@ -432,7 +432,7 @@ var r=function(e,t){return r=Object.setPrototypeOf||{__proto__:[]}instanceof Arr
 <script>
 "use strict";
 /* =====================================================  CONFIG  ===================================================== */
-const VERSION = "1.4.9";
+const VERSION = "1.5.0";
 const CFG = {
   minC: 40, maxC: 90,                 // US Xenio limit is 194°F / 90°C. The panel enforces this too.
   pollActiveMs: 10000,                // sauna on, or someone is using the panel
@@ -451,7 +451,9 @@ const CFG = {
   maxSessionMin: 60, sessionMin: 240,   // every start asks for a 4 hr session (Xenio applies onTime at the next start, not mid-session)                  // his heater ends sessions at 1 hr (max on-time setting); add time never asks for more                    // a slide to start faster than this is treated as a wipe, not a start
   dryC: 82, dryMin: 50, dryOnTime: 60, dryFromC: 49,   /* dry-out: Turn off after a session that reached 120°F (49°C) holds 180°F (82°C) for 50 min.
                                                        The heater only takes whole hours, so it restarts with onTime 60 as a backstop and the panel stops it at 50 */
-  coldC: 40,                          // a session that starts below 104°F is a cold start (walls and rocks at room temperature)
+  coldC: 40,
+  roomC: 21, heatEqC: 130,             /* ready time on a panel that missed the start: assume a 70°F room, and a room that would level off near 266°F
+                                         if the thermostat never cut in. heatEqC is the calibration knob: raise it if early guesses run late */                          // a session that starts below 104°F is a cold start (walls and rocks at room temperature)
   deviceStaleMs: 45 * 60000,          // no word from the sauna for this long = treat it as offline
   musicPackage: "com.spotify.music",
   renderScale: 1, base: "https://prod.myharvia-cloud.net",
@@ -567,7 +569,7 @@ function applyState(st, tl) { const r = st.reported || {}, d = tl.data || {}, wa
   const rRaw = d.remainingTime, rm = Number(rRaw); if (rRaw != null && rRaw !== "" && isFinite(rm)) S.remaining = Math.max(0, rm); S.heatOn = !!d.heatOn; if (S.active && S.remaining > 0) S.lastRem = S.remaining;
   S.dataAt = Math.max(st.timestamp || 0, tl.timestamp || 0); S.deviceOk = !S.dataAt || wall() - S.dataAt < CFG.deviceStaleMs;
   if (wasActive && !S.active && S.phase === "idle") { S.endedAt = now(); S.endWhy = S.door ? "door" : S.lastRem <= 3 ? "timer" : "elsewhere"; hist = []; log("session ended (" + S.endWhy + ")"); }
-  if (!wasActive && S.active) { const g = store.get("guess", null); if (!g || g.done || wall() - (g.made || 0) > 8 * 3600000) store.set("guess", { cold: S.temp != null && S.temp < CFG.coldC, made: wall(), at: 0 }); hist = []; S.endedAt = 0; S.failNote = ""; S.lastRem = S.remaining || 60; if (!S.startedAt || now() - S.startedAt > 120000) S.startedAt = now(); }
+  if (!wasActive && S.active) { const g = store.get("guess", null); if (!g || g.done || wall() - (g.made || 0) > 8 * 3600000) store.set("guess", { cold: S.temp != null && S.temp < CFG.coldC, startC: S.temp, made: wall(), at: 0 }); hist = []; S.endedAt = 0; S.failNote = ""; S.lastRem = S.remaining || 60; if (!S.startedAt || now() - S.startedAt > 120000) S.startedAt = now(); }
   if (S.rep.active === true && now() < lateStartRiskUntil && !pending.active) { lateStartRiskUntil = 0; log("a start we had given up on arrived late: stopping again"); forceStop("re-stop", true); notify("The sauna turned on late", "An earlier start command arrived late, after you were told it failed. It has been told to stop. Hold power if you do want it on.", 30000); goFast(); }
   if (S.active && document.body.classList.contains("asleep")) wake();                                  // started from the phone or the wall: show it
   if (isDrying() && S.phase === "idle" && wall() >= dryEnd()) { log("dry-out done"); stop(); }
@@ -575,6 +577,7 @@ function applyState(st, tl) { const r = st.reported || {}, d = tl.data || {}, wa
   if (dry && dry.stage === "prep" && !S.active && S.phase === "idle" && (now() > dry.until || (S.onTime === dry.on && now() > dry.until - 12000))) { dry.stage = "starting"; relaunch(); }   // the heater has the 60 min setting before it starts
   if (!S.active && !dry && S.phase === "idle" && S.onTime === CFG.dryOnTime && now() - onTimeFixAt > 60000) {   // after a dry-out: next session 4 hr again, target back to what it was
     onTimeFixAt = now(); const p = { onTime: CFG.sessionMin }, was = store.get("preDry", null); if (was && S.target === CFG.dryC) { p.targetTemp = was; S.target = was; hold.target = now() + CFG.holdMs; } sendCmd(p, "after dry-out"); }
+  if (!S.active && !dry && S.temp != null && S.temp < 35) store.set("roomSeen", { c: S.temp, t: wall() });   // the room just before a session, for panels that miss the start
   store.set("target", S.target); }
 
 /* commands: optimistic, then verified against what the sauna itself reports */
@@ -675,7 +678,16 @@ function minutesToReady(from, target, rate) {   // null when some step ahead is 
   for (let x = from; x < goal; ) { const k = Math.floor(x), nx = Math.min(k + 1, goal), near = steps[k] || steps[k - 1] || steps[k + 1], per = near ? near[0] : rate ? 1 / rate : null;   // the first and last step of a climb are never crossed whole, so borrow a neighbour
     if (per === null) return null; m += (nx - x) * per; x = nx; }
   return m; }
-function eta() { if (!S.active || S.temp == null || S.temp >= S.target - 1.5) return null; const m = minutesToReady(S.temp, S.target, liveRate()), g = store.get("guess", null); return m === null ? null : clamp(Math.round(m * fixFor(g ? g.cold : S.temp < CFG.coldC)), 1, 180); }
+/* A panel that missed the start (the phone, opened mid-session) still knows how long the heater has run (onTime - time left) and the temp now.
+   Newton's law of heating: the room closes in on heatEqC at a rate set by how far it already came, so it slows near the top like the real room. */
+function sessionMinutes() {
+  if (!S.onTime || !(S.remaining > 0) || isDrying()) return null;
+  const run = S.onTime - S.remaining; if (run < 3 || run > 180) return null;
+  const g = store.get("guess", null), c0 = g && g.startC != null && wall() - g.made < (run + 10) * 60000 ? g.startC : (store.get("roomSeen", null) || { c: CFG.roomC }).c, E = CFG.heatEqC;
+  if (S.temp - c0 < 2) return null;
+  const k = Math.log((E - c0) / (E - S.temp)) / run; return k > 0 ? Math.log((E - S.temp) / (E - (S.target - 1.5))) / k : null; }
+function eta() { if (!S.active || S.temp == null || S.temp >= S.target - 1.5) return null; const lr = liveRate(), learned = Object.keys(store.get("climb", {})).length > 0;
+  let m = learned ? minutesToReady(S.temp, S.target, lr) : null; if (m === null) m = sessionMinutes(); if (m === null) m = minutesToReady(S.temp, S.target, lr); const g = store.get("guess", null); return m === null ? null : clamp(Math.round(m * fixFor(g ? g.cold : S.temp < CFG.coldC)), 1, 180); }
 function isReady() { return S.active && S.temp != null && (S.temp >= S.target - 1.5 || S.atTemp); }
 let lastTgtShown = null, noticeTimer = 0;
 function notify(title, body, ms) { $("noticeT").textContent = title; $("noticeB").textContent = body || ""; $("notice").classList.add("show"); clearTimeout(noticeTimer); noticeTimer = ms >= 30000 ? 0 : setTimeout(() => $("notice").classList.remove("show"), ms || 9000); wake(); }
@@ -689,7 +701,7 @@ function renderView() { const u = useF ? "°F" : "°C", ready = isReady(), rem =
   const fresh = S.lastOk && (now() - S.lastOk < 100000 || document.hidden), link = S.online && fresh && S.deviceOk;
   let st; if (!S.lastOk) st = S.online ? "Connecting…" : "Can't reach the sauna · use the wall controller"; else if (!S.online || !fresh) st = "Can't reach the sauna · use the wall controller"; else if (!S.deviceOk) st = "The sauna is offline · use the wall controller";
     else if (holding) st = "Keep holding…"; else if (dry) st = "Starting dry-out"; else if (isDrying()) st = "Drying Sauna Now"; else if (S.phase === "starting") st = now() - S.startedAt > 20000 ? "Still starting…" : "Starting…"; else if (S.phase === "stopping") st = "Stopping…";
-    else if (S.active) st = ready ? "Ready" : e ? "Heating · ready " + clockAt(e) : "Heating";   /* ready time shows once ~2 min of heating data exists */
+    else if (S.active) st = ready ? "Ready" : e ? "Heating · ready " + clockAt(e) : "Heating";   /* learned curve first, then how far this session has come (works the moment the app opens), then the live rate */
     else if (S.failNote && now() - (S.failAt || 0) < 15 * 60000) st = S.failNote + " · hold to try again";
     else st = "Off";
   const se = $("state"); if (st === "Starting dry-out") { if (!se.querySelector(".dots")) se.innerHTML = st + '<span class="dots"><i>.</i><i>.</i><i>.</i></span>'; } else se.textContent = st; document.body.classList.toggle("off", !(S.active || S.phase === "starting" || dry));
