@@ -432,9 +432,9 @@ var r=function(e,t){return r=Object.setPrototypeOf||{__proto__:[]}instanceof Arr
 <script>
 "use strict";
 /* =====================================================  CONFIG  ===================================================== */
-const VERSION = "1.5.0";
+const VERSION = "1.5.2";
 const CFG = {
-  minC: 40, maxC: 90,                 // US Xenio limit is 194°F / 90°C. The panel enforces this too.
+  minC: 40, maxC: 105,                // 1.5.1: 221°F. The US Xenio stops at 194°F / 90°C, the EU one at 230°F / 110°C; the sensor is rated to 110°C, so this stays 5°C under.
   pollActiveMs: 10000,                // sauna on, or someone is using the panel
   pollIdleMs: 30000,                  // sauna off, panel idle
   pollFastMs: 3000, fastForMs: 90000, // right after a command
@@ -537,7 +537,7 @@ class MockHarvia {
 }
 
 /* =====================================================  STATE + SYNC ENGINE  ===================================================== */
-const S = { name: String(store.get("name", "Sauna") || "Sauna").slice(0, 40), active: false, target: clamp(Number(store.get("target", 80)) || 80, 40, 90), light: false, temp: null, remaining: 0, door: false, heatOn: false, atTemp: false,
+const S = { name: String(store.get("name", "Sauna") || "Sauna").slice(0, 40), active: false, target: clamp(Number(store.get("target", 80)) || 80, CFG.minC, CFG.maxC), light: false, temp: null, remaining: 0, door: false, heatOn: false, atTemp: false,
             rep: { active: null, light: null, target: null }, repFrom: 0, online: true, deviceOk: true, signedIn: false, lastOk: 0, phase: "idle" /* idle | starting | stopping */, endedAt: 0, endWhy: "", failNote: "", dataAt: 0, lastRem: 0, startedAt: 0, onTime: null };
 let authFails = 0, cancelHold = () => {}, cancelDrag = () => {}, rawDiag = "";
 let lastPollAt = 0, cancelStartsBefore = 0, startGen = 0, startsInFlight = 0, lateStartRiskUntil = 0;
@@ -988,7 +988,7 @@ function frameView(t) { const b = document.body.classList; if (document.hidden |
   const R = rN * W, box = R * 400 / 160; const hk = box.toFixed(1) + "|" + (cyN * H).toFixed(1) + "|" + W; if (hk !== heroKey) { heroKey = hk; hero.style.width = hero.style.height = box + "px"; hero.style.left = (W - box) / 2 + "px"; hero.style.top = (cyN * H - box / 2) + "px"; }
   { const w = onS * (.3 + .7 * heatS), G = [[0, 61, 131, 255], [.3, 255, 92, 26], [.6, 255, 100, 30], [1, 255, 118, 40]]; let i = 0; while (i < 2 && w > G[i + 1][0]) i++; const f = clamp((w - G[i][0]) / (G[i + 1][0] - G[i][0]), 0, 1), ch = j => Math.round(G[i][j] + (G[i + 1][j] - G[i][j]) * f); document.documentElement.style.setProperty("--glow", `rgb(${ch(1)},${ch(2)},${ch(3)})`); }
   if (glOk) { const t1 = performance.now(), sx = cv.width / W; gl.viewport(0, 0, cv.width, cv.height); gl.uniform2f(U.uRes, cv.width, cv.height); gl.uniform2f(U.uC, cv.width / 2, cv.height - cyN * H * sx); gl.uniform1f(U.uR, R * sx);
-    gl.uniform1f(U.uT, ((t - T0) / 1000) % 86400); gl.uniform1f(U.uPh, phase); gl.uniform1f(U.uHeat, onS * (.3 + .7 * heatS)); gl.uniform1f(U.uOn, onS); dryS = clamp(dryS + ((isDrying() || dry) ? 1 : -1) * dt / 1.2, 0, 1); gl.uniform1f(U.uDry, dryS * dryS * (3 - 2 * dryS)); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uAdj, bumpA); gl.uniform1f(U.uKnob, kA * Math.PI / 180); flowT = (flowT + dt * 1.25 * (.125 + .03 * heatS)) % 86400;   /* 1.4.5: whole lava speed range 25% faster */ gl.uniform1f(U.uFlow, flowT); trailA = showOn ? trailA + (kA - trailA) * (1 - Math.exp(-dt * 16)) : kA; gl.uniform1f(U.uTrail, trailA * Math.PI / 180); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.uniform1f(U.uT, ((t - T0) / 1000) % 86400); gl.uniform1f(U.uPh, phase); gl.uniform1f(U.uHeat, onS * (.3 + .7 * heatS)); gl.uniform1f(U.uOn, onS); dryS = clamp(dryS + ((isDrying() || dry) ? 1 : -1) * dt / 1.2, 0, 1); gl.uniform1f(U.uDry, dryS * dryS * (3 - 2 * dryS)); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uAdj, bumpA); gl.uniform1f(U.uKnob, kA * Math.PI / 180); flowT = (flowT + dt * 1.5 * (.125 + .03 * heatS)) % 86400;   /* 1.5.2: lava 20% faster again (1.25 -> 1.5) */ gl.uniform1f(U.uFlow, flowT); trailA = showOn ? trailA + (kA - trailA) * (1 - Math.exp(-dt * 16)) : kA; gl.uniform1f(U.uTrail, trailA * Math.PI / 180); gl.drawArrays(gl.TRIANGLES, 0, 3);
     /* adaptive quality: if frames are slow, render the background at a lower resolution; creep back up when there is headroom */
     quality.acc += dt * 1000 / (calm ? 2 : 1); if (++quality.n >= 60) { quality.avg = quality.acc / quality.n; quality.n = 0; quality.acc = 0; const since = t1 - quality.lastChange;
       if (false /* auto quality off: full resolution until real use shows a problem */ && quality.avg > 24 && quality.scale > .3 && since > 4000) { quality.scale = Math.max(.3, quality.scale - .08); quality.lastChange = t1; layout(); log("gpu: lowered detail to " + quality.scale.toFixed(2)); }
