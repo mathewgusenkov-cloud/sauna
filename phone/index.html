@@ -219,7 +219,7 @@ body header .name { font-weight: 300 !important; color: rgba(255,255,255,.8) !im
 /* === v19 END === */
 /* === v20 START === target row closer to the orb; crisp power key === */
 body #hero .stepper button.glass, body #hero .stepper button, body #hero .stepper #tWrap, body #hero .stepper #tWrap.glass { top: 102.5% !important; }
-body #slide.glass, body #slide.glass.on, body #slide.glass.busy { transition: left .7s var(--out), opacity .4s !important; width: calc(var(--s)*9) !important; height: calc(var(--s)*9) !important; left: calc(var(--s)*20) !important; bottom: calc(var(--s)*14.25) !important; background: rgba(255,255,255,.045) !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.26), inset 0 1px 0 rgba(255,255,255,.18) !important; -webkit-backdrop-filter: blur(8px) saturate(160%) !important; backdrop-filter: blur(8px) saturate(160%) !important; }
+body #slide.glass, body #slide.glass.on, body #slide.glass.busy { transition: left .7s var(--out), opacity .4s !important; width: calc(var(--s)*10.35) !important; height: calc(var(--s)*10.35) !important; left: calc(var(--s)*20) !important; bottom: calc(var(--s)*14.25) !important; background: rgba(255,255,255,.045) !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.26), inset 0 1px 0 rgba(255,255,255,.18) !important; -webkit-backdrop-filter: blur(8px) saturate(160%) !important; backdrop-filter: blur(8px) saturate(160%) !important; }
 body #slide.glass.on, body #slide.glass.busy { background: rgba(255,140,70,.10) !important; box-shadow: inset 0 0 0 1px rgba(255,170,110,.55), inset 0 1px 0 rgba(255,220,190,.25), 0 0 28px -8px rgba(255,120,50,.55) !important; }
 body #slide #power svg { width: 38% !important; height: 38% !important; stroke-width: 1.6 !important; shape-rendering: geometricPrecision; }
 body #slide.glass #hint, body #slide.glass:not(.on):not(.busy) #hint, body #slide.glass.on #hint, body #slide.glass.busy #hint { text-transform: uppercase; text-shadow: none !important; letter-spacing: .14em !important; white-space: nowrap; top: calc(100% + var(--s)*1.75) !important; font-size: calc(var(--s)*1.75) !important; font-weight: 500 !important; color: rgba(255,255,255,.8) !important; }
@@ -232,6 +232,7 @@ body #hero .stepper #tUp { border-radius: 50% !important; left: 68.5% !important
 /* v24: sinks with the hills and fades */
 /* off power key = the render's dark glossy sphere with a warm rim underneath; on = the glass key */
 body.off #slide.glass { width: calc(var(--s)*13) !important; height: calc(var(--s)*13) !important; left: calc(50% - var(--s)*6.5) !important; bottom: calc(var(--s)*12.25) !important; background: radial-gradient(circle at 50% 30%, #2c2c31, #141417 62%, #0b0b0d) !important; backdrop-filter: none !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.10), inset 0 -2px 5px rgba(255,140,60,.38), 0 0 0 1px rgba(255,170,110,.16), 0 8px 22px -8px rgba(255,120,40,.35), 0 16px 34px rgba(0,0,0,.55) !important; }
+body #slide.glass.on #hint { top: calc(100% + var(--s)*3) !important; }
 body #slide.glass { transition: left .7s var(--out), bottom .7s var(--out), width .7s var(--out), height .7s var(--out), background .6s, box-shadow .6s, opacity .4s !important; }
 body.off #slide #power svg { width: 38% !important; height: 38% !important; stroke-width: 1.9 !important; stroke: rgba(255,255,255,.92) !important; }
 body.off header .name { font-weight: 500 !important; color: #fff !important; }
@@ -256,7 +257,7 @@ body.drying #tUp, body.drying #tDown { opacity: 0 !important; pointer-events: no
 body.drying #hero .stepper #tWrap::before { content: "Max out sauna fan and open upper vent"; }
 body.drying #hero .stepper #tWrap span, body.drying #hero .stepper #tWrap small { display: none !important; }
 body.drying #ticks, body.drying #knob, body.drying #track, body.drying #prog { opacity: 0 !important; pointer-events: none !important; transition: opacity .6s var(--out); }
-body.drying #slide.glass, body.drying #slide.glass.busy { left: calc(50% - var(--s)*4.5) !important; }   /* the key stays centred through the switch-over */
+body.drying #slide.glass, body.drying #slide.glass.busy { left: calc(50% - var(--s)*5.175) !important; }   /* the key stays centred through the switch-over */
 body #slide.glass.dryk { animation: dryk .7s var(--spring); }
 @keyframes dryk { 0% { transform: scale(.82); } 55% { transform: scale(1.08); } 100% { transform: none; } }
 
@@ -302,12 +303,12 @@ body.asleep #sleepFace { display: grid; justify-items: center; gap: calc(var(--s
 #sleepFace sup { position: absolute; left: 100%; top: .32em; margin-left: .3em; font-size: .22em; letter-spacing: 0; color: rgba(235,240,255,.62); -webkit-text-fill-color: rgba(235,240,255,.62); }   /* outside the clipped box, so it gets its own colour */
 #sleepFace .t { font-size: calc(var(--s)*1.75); font-weight: 400; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.62); }
 #st2 { margin-top: calc(var(--s)*3.375); font-size: calc(var(--s)*1.75); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.62); font-variant-numeric: tabular-nums; }
-body #slide.glass.on { left: calc(var(--s)*45.5) !important; }
+body #slide.glass.on { left: calc(var(--s)*44.825) !important; }
 /* ==================== PHONE (< 600 px wide): same panel, laid out for a tall narrow screen ==================== */
 @media (max-width: 599px) {
   #app { position: fixed; inset: 0; width: auto; height: auto; aspect-ratio: auto; max-width: none; }   /* fixed + inset: in a Home Screen app 100% / svh heights stop short of the screen edges (WebKit 254868) */
   header { padding: calc(env(safe-area-inset-top) + var(--s)*2) calc(var(--s)*4) 0; }
-  body #slide.glass, body #slide.glass.on, body #slide.glass.busy { left: calc(50% - var(--s)*4.5) !important; bottom: calc(env(safe-area-inset-bottom) + var(--s)*14.25) !important; }
+  body #slide.glass, body #slide.glass.on, body #slide.glass.busy { left: calc(50% - var(--s)*5.175) !important; bottom: calc(env(safe-area-inset-bottom) + var(--s)*14.25) !important; }
   body.off #slide.glass { left: calc(50% - var(--s)*6.5) !important; bottom: calc(env(safe-area-inset-bottom) + var(--s)*12.25) !important; }
   body #stats, body.off #stats { top: auto !important; bottom: calc(env(safe-area-inset-bottom) + var(--s)*30) !important; }
   #notice, .sheet .box { width: calc(100% - var(--s)*6); }
@@ -338,7 +339,7 @@ body #slide.glass.on { left: calc(var(--s)*45.5) !important; }
     <div id="err"></div><button class="btn" type="submit" id="loginGo">Continue</button><button class="btn text" type="button" id="demoBtn">Preview with demo data</button></form></div>
 
   <div id="settings" class="sheet hidden"><div class="box"><h1>Panel settings</h1>
-    <div class="rows"><button id="setUnit"><span>Temperature unit</span><em id="setUnitV"></em></button><label id="setBright" class="hidden"><span>Brightness</span><input id="setBrightR" type="range" min="10" max="255" step="1"></label><button id="setReload"><span>Reload panel</span><em>Fixes most glitches</em></button><button id="setDiag"><span>Diagnostics</span><em id="setVer"></em></button><button id="setWidget"><span>Widget key</span><em>Copy for Scriptable</em></button><button id="setOut"><span>Sign out</span><em id="setAcct"></em></button></div>
+    <div class="rows"><button id="setUnit"><span>Temperature unit</span><em id="setUnitV"></em></button><label id="setBright" class="hidden"><span>Brightness</span><input id="setBrightR" type="range" min="10" max="255" step="1"></label><button id="setReload"><span>Reload panel</span><em>Fixes most glitches</em></button><button id="setDiag"><span>Diagnostics</span><em id="setVer"></em></button><button id="setTrace"><span>Copy heater log</span><em>Commands + heater replies</em></button><button id="setWidget"><span>Widget key</span><em>Copy for Scriptable</em></button><button id="setOut"><span>Sign out</span><em id="setAcct"></em></button></div>
     <div id="diag" class="hidden"></div><button class="btn ghost" id="setClose">Done</button></div></div>
 </div>
 
@@ -432,7 +433,7 @@ var r=function(e,t){return r=Object.setPrototypeOf||{__proto__:[]}instanceof Arr
 <script>
 "use strict";
 /* =====================================================  CONFIG  ===================================================== */
-const VERSION = "1.5.3";
+const VERSION = "1.5.4";
 const CFG = {
   minC: 40, maxC: 105,                // 1.5.1: 221°F. The US Xenio stops at 194°F / 90°C, the EU one at 230°F / 110°C; the sensor is rated to 110°C, so this stays 5°C under.
   pollActiveMs: 10000,                // sauna on, or someone is using the panel
@@ -466,6 +467,11 @@ const c2f = c => c * 9 / 5 + 32, f2c = f => (f - 32) * 5 / 9;
 const store = { ok: true, get(k, d) { try { const v = localStorage.getItem("sauna." + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem("sauna." + k, JSON.stringify(v)); } catch (e) {} } };
 try { localStorage.setItem("sauna.t", "1"); if (localStorage.getItem("sauna.t") !== "1") throw 0; localStorage.removeItem("sauna.t"); } catch (e) { store.ok = false; }
 const _l = store.get("log", []), LOG = Array.isArray(_l) ? _l : []; function log(msg) { const line = new Date().toISOString().slice(5, 19).replace("T", " ") + "  " + msg; LOG.push(line); while (LOG.length > 120) LOG.shift(); store.set("log", LOG); if (window.console) console.log("[sauna] " + msg); }
+/* 1.5.4 heater trace: every command this panel sends and every change in what the heater reports, raw (nothing rounded or
+   clamped), kept on this device. Read it in Diagnostics or copy it whole with "Copy heater log" */
+const _tr = store.get("trace", []), TRACE = Array.isArray(_tr) ? _tr : []; let traceLast = "";
+function trace(k, o) { TRACE.push(Object.assign({ t: new Date().toISOString(), k }, o)); while (TRACE.length > 2000) TRACE.shift(); store.set("trace", TRACE); }
+const traceLine = e => new Date(e.t).toTimeString().slice(0, 8) + "  " + (e.k === "heater" ? "temp " + e.data.temperature + "C  tgt " + e.state.targetTemp + "  heat " + (e.data.heatOn ? 1 : 0) + "  st " + e.state.statusCodes + "  rem " + e.data.remainingTime : e.k + " " + JSON.stringify(e.payload) + (e.err ? "  ERR " + e.err : ""));
 const fullyApi = () => (typeof window.fully === "object" && window.fully) || null;
 function fullyCall(fn, ...a) { try { const f = fullyApi(); if (f && typeof f[fn] === "function") return f[fn](...a); } catch (e) { log("fully." + fn + " failed: " + e); } return undefined; }
 class AppError extends Error { constructor(kind, msg) { super(msg); this.kind = kind; } }
@@ -560,6 +566,7 @@ async function poll() { if (polling || !S.signedIn) return schedulePoll(); polli
   polling = false; checkPending(); render(); schedulePoll(); }
 
 function applyState(st, tl) { const r = st.reported || {}, d = tl.data || {}, wasActive = S.active;
+  { const key = JSON.stringify([r, d]); if (key !== traceLast) { traceLast = key; trace("heater", { state: r, data: d, stateTs: st.timestamp, dataTs: tl.timestamp }); } }
   if (r.displayName && r.displayName !== S.name) { S.name = String(r.displayName).slice(0, 40); store.set("name", S.name); }
   let tgt = Number(r.targetTemp); if (tgt > 110) tgt = f2c(tgt);                        // defensive: if a panel ever reports °F
   if (isFinite(tgt) && tgt > 0) { S.rep.target = clamp(Math.round(tgt), CFG.minC, CFG.maxC); take("target", S.rep.target); }
@@ -582,7 +589,7 @@ function applyState(st, tl) { const r = st.reported || {}, d = tl.data || {}, wa
 
 /* commands: optimistic, then verified against what the sauna itself reports */
 function forceStop(why, show) { const t = now(); if (show) { S.phase = "stopping"; pulse = .4; } pending.active = { want: false, auto: true, sentAt: t, until: t + CFG.stopVerifyMs, resendAt: t + 8000, tries: 1 }; hold.active = t + CFG.holdMs; S.active = false; sendCmd({ active: 0 }, why).then(() => goFast()); }
-async function sendCmd(payload, why) { try { await api.set(payload); log("sent " + JSON.stringify(payload)); return true; } catch (e) { log("send failed (" + why + "): " + e.message); if (e.kind === "auth") schedulePoll(0); return false; } }
+async function sendCmd(payload, why) { try { const res = await api.set(payload); log("sent " + JSON.stringify(payload)); trace("sent", { payload, why, res }); return true; } catch (e) { log("send failed (" + why + "): " + e.message); trace("send-failed", { payload, why, err: e.message }); if (e.kind === "auth") schedulePoll(0); return false; } }
 function goFast() { fastUntil = now() + CFG.fastForMs; schedulePoll(1200); }
 function setLight(on) { if (!S.signedIn) return; const prev = S.light; S.light = on; hold.light = now() + CFG.holdMs; pending.light = { want: on, sentAt: now(), until: now() + CFG.lightVerifyMs }; render(); sendCmd({ light: on ? 1 : 0 }, "light").then(ok => { if (!ok) { if (pending.light && pending.light.want === on) { delete pending.light; hold.light = 0; S.light = prev; } render(); notify("Couldn't reach the sauna", "The light didn't change. Check the Wi-Fi, or use the wall panel."); } goFast(); }); }
 let tgtTimer = 0, tgtBase = null; function setTarget(c) { if (!S.signedIn || isDrying()) return; c = clamp(Math.round(c), CFG.minC, CFG.maxC); if (c === S.target) return; if (tgtBase === null) tgtBase = S.target; S.target = c; hold.target = now() + CFG.holdMs + 1000; pulse = Math.max(pulse, .3); render(); clearTimeout(tgtTimer);
@@ -706,7 +713,7 @@ function renderView() { const u = useF ? "°F" : "°C", ready = isReady(), rem =
     else st = "Off";
   const se = $("state"); if (st === "Starting dry-out") { if (!se.querySelector(".dots")) se.innerHTML = st + '<span class="dots"><i>.</i><i>.</i><i>.</i></span>'; } else se.textContent = st; document.body.classList.toggle("off", !(S.active || S.phase === "starting" || dry));
   document.body.classList.toggle("drying", isDrying() || !!dry); $("slide").classList.toggle("dryk", isDrying()); document.body.classList.toggle("stale", !link && !!S.lastOk); document.body.classList.toggle("nolink", !link && !S.active);
-  $("hint").textContent = dry ? "One moment" : S.phase === "starting" ? "Starting · tap to cancel" : S.phase !== "idle" ? "Stopping…" : isDrying() ? "Tap to turn off now" : S.active ? "Hold to turn off" : !link ? "\u00a0" : "Hold to start";
+  $("hint").textContent = dry ? "One moment" : S.phase === "starting" ? "Starting · tap to cancel" : S.phase !== "idle" ? "Stopping…" : isDrying() ? "Tap to turn off now" : S.active ? "Hold to end session" : !link ? "\u00a0" : "Hold to start";
   $("prog").setAttribute("d", arc(S.temp == null ? 0 : frac(S.temp))); $("prog").style.opacity = (S.temp == null || frac(S.temp) < .03) ? 0 : S.active ? .9 : .35;
   $("power").classList.toggle("lit", S.active && S.phase === "idle"); $("power").classList.toggle("busy", S.phase !== "idle"); $("slide").classList.toggle("on", S.active && S.phase === "idle"); $("slide").classList.toggle("busy", S.phase !== "idle"); $("slide").classList.toggle("off", !link && !S.active);
   renderExtras(ready, rem, e, link);
@@ -740,7 +747,7 @@ tap($("tUp"), () => nudge(1)); tap($("tDown"), () => nudge(-1));
   b.addEventListener("pointerdown", ev => { fired = false; if (!S.signedIn || S.phase !== "idle" || isDrying() || pid !== null) return; pid = ev.pointerId; try { b.setPointerCapture(pid); } catch (e) {} t0 = performance.now(); x0 = ev.clientX; y0 = ev.clientY; holding = true; sl.classList.add("press"); render(); raf = requestAnimationFrame(step); });
   b.addEventListener("pointermove", ev => { if (ev.pointerId !== pid) return; if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 28) end(); });
   b.addEventListener("pointerup", ev => { if (ev.pointerId !== pid) return; const k = (performance.now() - t0) / need(); end();
-    if (S.phase === "idle" && S.signedIn && k > .12) { sl.classList.remove("nudge"); void sl.offsetWidth; sl.classList.add("nudge"); notify(S.active ? "Hold to turn off" : "Hold to start", "Keep your finger on the power button until the ring fills."); } });
+    if (S.phase === "idle" && S.signedIn && k > .12) { sl.classList.remove("nudge"); void sl.offsetWidth; sl.classList.add("nudge"); notify(S.active ? "Hold to end session" : "Hold to start", "Keep your finger on the power button until the ring fills."); } });
   ["pointercancel", "lostpointercapture"].forEach(e => b.addEventListener(e, () => pid !== null && end())); b.addEventListener("contextmenu", ev => ev.preventDefault());
   tap(sl, () => { if (!S.signedIn || fired) return; if (S.phase === "starting" || isDrying()) { dry = null; stop(); } }); })();
 
@@ -785,7 +792,8 @@ tap($("setWidget"), () => { const k = widgetKey(), done = () => notify("Widget k
   else k.then(t => navigator.clipboard.writeText(t)).then(done, fail); });
 tap($("setDiag"), () => { const d = $("diag"); d.classList.toggle("hidden"); const f = fullyApi();
   d.textContent = ["version " + VERSION + "   up " + Math.round((now() - bootAt) / 60000) + " min", "mode " + (api instanceof MockHarvia ? "mock" : "live") + "   storage " + (store.ok ? "ok" : "UNAVAILABLE") + "   kiosk " + (f ? "fully" : "no"),
-    "online " + S.online + "   device ok " + S.deviceOk + "   last ok " + (S.lastOk ? Math.round((now() - S.lastOk) / 1000) + "s ago" : "never"), "signed in " + Math.round((wall() - store.get("loginAt", wall())) / 864e5) + " days ago", "gpu scale " + quality.scale.toFixed(2) + "   frame " + quality.avg.toFixed(1) + " ms", f ? "battery " + fullyCall("getBatteryLevel") + "%  plugged " + fullyCall("isPlugged") : "", "vp " + innerWidth + "x" + innerHeight + "  dpr " + devicePixelRatio + "  canvas " + cv.width + "x" + cv.height, rawDiag, readyDiag(), (navigator.userAgent.match(/Chrome\/[\d.]+/) || [""])[0], "", ...LOG.slice(-60).reverse()].join("\n"); });
+    "online " + S.online + "   device ok " + S.deviceOk + "   last ok " + (S.lastOk ? Math.round((now() - S.lastOk) / 1000) + "s ago" : "never"), "signed in " + Math.round((wall() - store.get("loginAt", wall())) / 864e5) + " days ago", "gpu scale " + quality.scale.toFixed(2) + "   frame " + quality.avg.toFixed(1) + " ms", f ? "battery " + fullyCall("getBatteryLevel") + "%  plugged " + fullyCall("isPlugged") : "", "vp " + innerWidth + "x" + innerHeight + "  dpr " + devicePixelRatio + "  canvas " + cv.width + "x" + cv.height, rawDiag, readyDiag(), (navigator.userAgent.match(/Chrome\/[\d.]+/) || [""])[0], "", "HEATER LOG (" + TRACE.length + ")", ...TRACE.slice(-80).reverse().map(traceLine), "", ...LOG.slice(-60).reverse()].join("\n"); });
+tap($("setTrace"), () => { (navigator.clipboard ? navigator.clipboard.writeText(JSON.stringify(TRACE)) : Promise.reject()).then(() => notify("Heater log copied", TRACE.length + " entries. Paste it to Claude."), () => notify("Couldn't copy", "Open Diagnostics and send a photo of the heater log instead.")); });
 
 /* =====================================================  LOGIN FLOW  ===================================================== */
 let reauthT = 0;
@@ -908,7 +916,7 @@ void main(){
        clock, so nothing ever snaps back. The dark shoreline under the text stays put */
     float F = uFlow;
     vec2 q3 = uh * 2.3 + vec2(uT * .013, -uT * .009);
-    vec2 fv = vec2(gn(q3), gn(q3 + vec2(5.2, 1.7))) * 1.5 + vec2(.08, .55);
+    vec2 fv = vec2(gn(q3), gn(q3 + vec2(5.2, 1.7))) * 1.5 + vec2(.08, -.55);   /* 1.5.4: the steady pour runs upward */
     fv *= .17 * edge * smoothstep(.70, .52, uh.y);
     float pj = gn(uh * 3.3 + 7.3) * .45, ph1 = fract(F + pj), ph2 = fract(F + pj + .5), k1 = 1. - abs(ph1 * 2. - 1.), k2 = 1. - k1;
     vec2 lc = vec2(.498, .519), s1 = uh - fv * (ph1 - .5), s2 = uh - fv * (ph2 - .5);
@@ -990,7 +998,7 @@ function frameView(t) { const b = document.body.classList; if (document.hidden |
   const R = rN * W, box = R * 400 / 160; const hk = box.toFixed(1) + "|" + (cyN * H).toFixed(1) + "|" + W; if (hk !== heroKey) { heroKey = hk; hero.style.width = hero.style.height = box + "px"; hero.style.left = (W - box) / 2 + "px"; hero.style.top = (cyN * H - box / 2) + "px"; }
   { const w = onS * (.3 + .7 * heatS), G = [[0, 61, 131, 255], [.3, 255, 92, 26], [.6, 255, 100, 30], [1, 255, 118, 40]]; let i = 0; while (i < 2 && w > G[i + 1][0]) i++; const f = clamp((w - G[i][0]) / (G[i + 1][0] - G[i][0]), 0, 1), ch = j => Math.round(G[i][j] + (G[i + 1][j] - G[i][j]) * f); document.documentElement.style.setProperty("--glow", `rgb(${ch(1)},${ch(2)},${ch(3)})`); }
   if (glOk) { const t1 = performance.now(), sx = cv.width / W; gl.viewport(0, 0, cv.width, cv.height); gl.uniform2f(U.uRes, cv.width, cv.height); gl.uniform2f(U.uC, cv.width / 2, cv.height - cyN * H * sx); gl.uniform1f(U.uR, R * sx);
-    gl.uniform1f(U.uT, ((t - T0) / 1000) % 86400); gl.uniform1f(U.uPh, phase); gl.uniform1f(U.uHeat, onS * (.3 + .7 * heatS)); gl.uniform1f(U.uOn, onS); dryS = clamp(dryS + ((isDrying() || dry) ? 1 : -1) * dt / 1.2, 0, 1); gl.uniform1f(U.uDry, dryS * dryS * (3 - 2 * dryS)); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uAdj, bumpA); gl.uniform1f(U.uKnob, kA * Math.PI / 180); flowT = (flowT + dt * (.23 + .05 * heatS)) % 64;   /* 1.5.3: flow cycles per second (one cycle ~4 s); wraps on a whole number so the loop is seamless */ gl.uniform1f(U.uFlow, flowT); trailA = showOn ? trailA + (kA - trailA) * (1 - Math.exp(-dt * 16)) : kA; gl.uniform1f(U.uTrail, trailA * Math.PI / 180); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.uniform1f(U.uT, ((t - T0) / 1000) % 86400); gl.uniform1f(U.uPh, phase); gl.uniform1f(U.uHeat, onS * (.3 + .7 * heatS)); gl.uniform1f(U.uOn, onS); dryS = clamp(dryS + ((isDrying() || dry) ? 1 : -1) * dt / 1.2, 0, 1); gl.uniform1f(U.uDry, dryS * dryS * (3 - 2 * dryS)); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uAdj, bumpA); gl.uniform1f(U.uKnob, kA * Math.PI / 180); flowT = (flowT + dt * (.1955 + .0425 * heatS)) % 64;   /* 1.5.4: 15% slower. Flow cycles per second (one cycle ~4-5 s); wraps on a whole number so the loop is seamless */ gl.uniform1f(U.uFlow, flowT); trailA = showOn ? trailA + (kA - trailA) * (1 - Math.exp(-dt * 16)) : kA; gl.uniform1f(U.uTrail, trailA * Math.PI / 180); gl.drawArrays(gl.TRIANGLES, 0, 3);
     /* adaptive quality: if frames are slow, render the background at a lower resolution; creep back up when there is headroom */
     quality.acc += dt * 1000 / (calm ? 2 : 1); if (++quality.n >= 60) { quality.avg = quality.acc / quality.n; quality.n = 0; quality.acc = 0; const since = t1 - quality.lastChange;
       if (false /* auto quality off: full resolution until real use shows a problem */ && quality.avg > 24 && quality.scale > .3 && since > 4000) { quality.scale = Math.max(.3, quality.scale - .08); quality.lastChange = t1; layout(); log("gpu: lowered detail to " + quality.scale.toFixed(2)); }
