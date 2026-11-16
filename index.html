@@ -418,9 +418,9 @@ var r=function(e,t){return r=Object.setPrototypeOf||{__proto__:[]}instanceof Arr
 <script>
 "use strict";
 /* =====================================================  CONFIG  ===================================================== */
-const VERSION = "1.5.0";
+const VERSION = "1.5.1";
 const CFG = {
-  minC: 40, maxC: 90,                 // US Xenio limit is 194°F / 90°C. The panel enforces this too.
+  minC: 40, maxC: 105,                // 1.5.1: 221°F. The US Xenio stops at 194°F / 90°C, the EU one at 230°F / 110°C; the sensor is rated to 110°C, so this stays 5°C under.
   pollActiveMs: 10000,                // sauna on, or someone is using the panel
   pollIdleMs: 30000,                  // sauna off, panel idle
   pollFastMs: 3000, fastForMs: 90000, // right after a command
@@ -523,7 +523,7 @@ class MockHarvia {
 }
 
 /* =====================================================  STATE + SYNC ENGINE  ===================================================== */
-const S = { name: String(store.get("name", "Sauna") || "Sauna").slice(0, 40), active: false, target: clamp(Number(store.get("target", 80)) || 80, 40, 90), light: false, temp: null, remaining: 0, door: false, heatOn: false, atTemp: false,
+const S = { name: String(store.get("name", "Sauna") || "Sauna").slice(0, 40), active: false, target: clamp(Number(store.get("target", 80)) || 80, CFG.minC, CFG.maxC), light: false, temp: null, remaining: 0, door: false, heatOn: false, atTemp: false,
             rep: { active: null, light: null, target: null }, repFrom: 0, online: true, deviceOk: true, signedIn: false, lastOk: 0, phase: "idle" /* idle | starting | stopping */, endedAt: 0, endWhy: "", failNote: "", dataAt: 0, lastRem: 0, startedAt: 0, onTime: null };
 let authFails = 0, cancelHold = () => {}, cancelDrag = () => {}, rawDiag = "";
 let lastPollAt = 0, cancelStartsBefore = 0, startGen = 0, startsInFlight = 0, lateStartRiskUntil = 0;
