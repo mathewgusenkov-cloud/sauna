@@ -418,7 +418,7 @@ var r=function(e,t){return r=Object.setPrototypeOf||{__proto__:[]}instanceof Arr
 <script>
 "use strict";
 /* =====================================================  CONFIG  ===================================================== */
-const VERSION = "1.5.2";
+const VERSION = "1.5.3";
 const CFG = {
   minC: 40, maxC: 105,                // 1.5.1: 221°F. The US Xenio stops at 194°F / 90°C, the EU one at 230°F / 110°C; the sensor is rated to 110°C, so this stays 5°C under.
   pollActiveMs: 10000,                // sauna on, or someone is using the panel
@@ -862,7 +862,7 @@ void main(){
 
   /* inside the orb */
   if (r < 1. + aa) {
-    vec2 uc = .5 + vec2(p.x, -p.y) * .4913, uh = .5 + vec2(p.x, -p.y) * .4612;
+    vec2 uc = .5 + vec2(p.x, -p.y) * .4913, uh = vec2(.498, .519) + vec2(p.x, -p.y) * .430;   /* 1.5.3: centred on the photo's lava ball and just inside its rim, so no dark band shows under the ring */
     float edge = smoothstep(1., .82, r);
     /* v16 off orb: alive - nebula base drifts on a slow warp, star field turns (visible), second star layer turns the other way
        for depth, stars twinkle, light breathes */
@@ -875,16 +875,18 @@ void main(){
     float tw = .7 + .9 * smoothstep(-.2, .5, gn(uc * 30. + uT * .6)), tw2 = .5 + .8 * smoothstep(-.1, .5, gn(uc * 22. - uT * .45));
     vec3 cold = base * (.92 + .10 * sin(uT * .4 + p.x * 1.5 - p.y)) + det1 * tw + max(det2, 0.) * .55 * tw2;
     cold += vec3(.35, .55, 1.) * stars(rot(uT * .05) * p, 26., .985, .05, uT * 2.) * .9 * edge;
-    /* v17 lava: seamless motion loop (one cycle of F = 1 repeats exactly). Fine marbling is carried along a slow curling,
-       upwelling flow field (two flow phases crossfaded), plus a circular-time wobble, so it creeps like molten rock */
+    /* 1.5.3 lava: the photo is carried along a flow field (slow swirls + a steady pour down its own streaks) so it travels
+       like molten rock instead of wobbling in place. Two copies half a cycle apart are crossfaded, each pixel on its own
+       clock, so nothing ever snaps back. The dark shoreline under the text stays put */
     float F = uFlow;
-    /* lava: continuous churn, never loops or resets - two layers of slowly drifting noise warp the photo's fine marbling */
-    vec2 q3 = uh * 2.2;
-    vec2 w1 = vec2(gn(q3 + vec2(F * .55, F * .32)), gn(q3 + vec2(5.2 - F * .41, 1.7 + F * .47)));
-    vec2 w2 = vec2(gn(uh * 5.3 + w1 * 1.4 + vec2(0., F * .8)), gn(uh * 5.3 + w1 * 1.4 + vec2(3.1, -F * .7)));
-    vec2 u0 = uh + (w1 * .034 + w2 * .013) * edge;
-    vec3 d0 = texture2D(uTex, u0).rgb - texture2D(uTex, u0, 3.5).rgb;
-    vec3 lava = texture2D(uTex, uh + w1 * .010 * edge, 3.5).rgb + d0;
+    vec2 q3 = uh * 2.3 + vec2(uT * .013, -uT * .009);
+    vec2 fv = vec2(gn(q3), gn(q3 + vec2(5.2, 1.7))) * 1.5 + vec2(.08, .55);
+    fv *= .17 * edge * smoothstep(.70, .52, uh.y);
+    float pj = gn(uh * 3.3 + 7.3) * .45, ph1 = fract(F + pj), ph2 = fract(F + pj + .5), k1 = 1. - abs(ph1 * 2. - 1.), k2 = 1. - k1;
+    vec2 lc = vec2(.498, .519), s1 = uh - fv * (ph1 - .5), s2 = uh - fv * (ph2 - .5);
+    s1 = lc + (s1 - lc) * min(1., .436 / max(length(s1 - lc), 1e-4)); s2 = lc + (s2 - lc) * min(1., .436 / max(length(s2 - lc), 1e-4));
+    vec3 soft = texture2D(uTex, s1, 3.5).rgb * k1 + texture2D(uTex, s2, 3.5).rgb * k2;
+    vec3 lava = soft + (texture2D(uTex, s1).rgb * k1 + texture2D(uTex, s2).rgb * k2 - soft) / sqrt(k1 * k1 + k2 * k2);   /* keeps the marbling crisp through the crossfade */
     cold = max(cold, 0.); lava = max(lava, 0.) * mix(.62, 1., hh);
     float rev = uOn * 1.45, dn = gfbm(p * 2.2 + uT * .03) * .22;
     float la = (1. - smoothstep(rev - .32, rev - .02, r + dn)) * smoothstep(0., .06, uOn);
@@ -960,7 +962,7 @@ function frameView(t) { const b = document.body.classList; if (document.hidden |
   const R = rN * W, box = R * 400 / 160; const hk = box.toFixed(1) + "|" + (cyN * H).toFixed(1) + "|" + W; if (hk !== heroKey) { heroKey = hk; hero.style.width = hero.style.height = box + "px"; hero.style.left = (W - box) / 2 + "px"; hero.style.top = (cyN * H - box / 2) + "px"; }
   { const w = onS * (.3 + .7 * heatS), G = [[0, 61, 131, 255], [.3, 255, 92, 26], [.6, 255, 100, 30], [1, 255, 118, 40]]; let i = 0; while (i < 2 && w > G[i + 1][0]) i++; const f = clamp((w - G[i][0]) / (G[i + 1][0] - G[i][0]), 0, 1), ch = j => Math.round(G[i][j] + (G[i + 1][j] - G[i][j]) * f); document.documentElement.style.setProperty("--glow", `rgb(${ch(1)},${ch(2)},${ch(3)})`); }
   if (glOk) { const t1 = performance.now(), sx = cv.width / W; gl.viewport(0, 0, cv.width, cv.height); gl.uniform2f(U.uRes, cv.width, cv.height); gl.uniform2f(U.uC, cv.width / 2, cv.height - cyN * H * sx); gl.uniform1f(U.uR, R * sx);
-    gl.uniform1f(U.uT, ((t - T0) / 1000) % 86400); gl.uniform1f(U.uPh, phase); gl.uniform1f(U.uHeat, onS * (.3 + .7 * heatS)); gl.uniform1f(U.uOn, onS); dryS = clamp(dryS + ((isDrying() || dry) ? 1 : -1) * dt / 1.2, 0, 1); gl.uniform1f(U.uDry, dryS * dryS * (3 - 2 * dryS)); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uAdj, bumpA); gl.uniform1f(U.uKnob, kA * Math.PI / 180); flowT = (flowT + dt * 1.5 * (.125 + .03 * heatS)) % 86400;   /* 1.5.2: lava 20% faster again (1.25 -> 1.5) */ gl.uniform1f(U.uFlow, flowT); trailA = showOn ? trailA + (kA - trailA) * (1 - Math.exp(-dt * 16)) : kA; gl.uniform1f(U.uTrail, trailA * Math.PI / 180); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.uniform1f(U.uT, ((t - T0) / 1000) % 86400); gl.uniform1f(U.uPh, phase); gl.uniform1f(U.uHeat, onS * (.3 + .7 * heatS)); gl.uniform1f(U.uOn, onS); dryS = clamp(dryS + ((isDrying() || dry) ? 1 : -1) * dt / 1.2, 0, 1); gl.uniform1f(U.uDry, dryS * dryS * (3 - 2 * dryS)); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uAdj, bumpA); gl.uniform1f(U.uKnob, kA * Math.PI / 180); flowT = (flowT + dt * (.23 + .05 * heatS)) % 64;   /* 1.5.3: flow cycles per second (one cycle ~4 s); wraps on a whole number so the loop is seamless */ gl.uniform1f(U.uFlow, flowT); trailA = showOn ? trailA + (kA - trailA) * (1 - Math.exp(-dt * 16)) : kA; gl.uniform1f(U.uTrail, trailA * Math.PI / 180); gl.drawArrays(gl.TRIANGLES, 0, 3);
     /* adaptive quality: if frames are slow, render the background at a lower resolution; creep back up when there is headroom */
     quality.acc += dt * 1000 / (calm ? 2 : 1); if (++quality.n >= 60) { quality.avg = quality.acc / quality.n; quality.n = 0; quality.acc = 0; const since = t1 - quality.lastChange;
       if (false /* auto quality off: full resolution until real use shows a problem */ && quality.avg > 24 && quality.scale > .3 && since > 4000) { quality.scale = Math.max(.3, quality.scale - .08); quality.lastChange = t1; layout(); log("gpu: lowered detail to " + quality.scale.toFixed(2)); }
